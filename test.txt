@@ -1,0 +1,47 @@
+/*hhhh*/
+int n;
+int data[1000];
+function void qsort(int l,int r){
+    if(l>r){
+        return;
+    }
+    int ll=l;
+    int rr=r;
+    int pivot=data[l];
+    int tmp;
+    while(ll<rr){
+        while(data[ll]<pivot){
+            ll=ll+1;
+        }
+        while(data[rr]>pivoit){
+            rr=rr-1;
+        }
+        if(ll<=rr){
+            if(data[ll]>=data[rr]){
+                tmp=data[ll];
+                data[ll]=data[rr];
+                data[rr]=tmp;
+            }
+            ll=ll+1;
+            rr=rr-1;
+        }
+    }
+    qsort(l,rr);
+    qsort(ll,r);
+}
+function int main(){
+    int i=1;
+    int n;
+    cin("%d",&n);
+    while(i<=n){
+        cin("%d",&data[i]);
+        i=i+1;
+    }
+    qsort(1,n);
+    i=1;
+    while(i<=n){
+        cout("%d\n",data[i]);
+        i=i+1;
+    }
+    return 0;
+}
