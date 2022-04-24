@@ -1,0 +1,48 @@
+int a[25][25];
+int b[25][25];
+int c[25][25];
+int ma, na, mb, nb;
+
+function int main() {
+    cin("%d %d", &ma, &na);
+    for(int i = 0;i < ma;i++) {
+        for(int j = 0;j < na;j++) {
+            cin("%d", &a[i][j]);
+        }
+    }
+
+    cin("%d %d", &mb, &nb);
+    for(int i = 0;i < mb;i++) {
+        for(int j = 0;j < nb;j++) {
+            cin("%d", &b[i][j]);
+        }
+    }
+
+    if(na != mb) {
+        cout("Incompatible Dimensions\n");
+        return 0;
+    }
+
+    for(int i = 0;i < ma;i++) {
+        for(int j = 0;j < nb;j++) {
+            c[i][j] = 0;
+        }
+    }
+
+    for(int i = 0;i < ma;i++) {
+        for(int j = 0;j < nb;j++) {
+            for(int k = 0;k < na;k++) {
+                c[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+
+    for(int i = 0;i < ma;i++) {
+        for(int j = 0;j < nb;j++) {
+            cout("%10d", c[i][j]);
+        }
+        cout("\n");
+    }
+
+    return 0;
+}
