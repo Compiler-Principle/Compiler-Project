@@ -34,7 +34,7 @@ int main() {
     for(int i = 0;i < ma;i++) {
         for(int j = 0;j < nb;j++) {
             for(int k = 0;k < na;k++) {
-                c[i][j] += a[i][k] * b[k][j];
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
             }
         }
     }
