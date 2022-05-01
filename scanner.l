@@ -8,7 +8,7 @@
 %option noyywrap
 letter  [A-Za-z]
 digit   [0-9]
-INT     -?(0|([1-9]{digit}*))
+INT     (0|([1-9]{digit}*))
 FLOAT   {INT}"."{digit}+
 id      [0-9_a-zA-Z]
 idf     [_a-zA-Z]
@@ -38,7 +38,7 @@ blank   [ \t\v\n\f\r]
 "*" {if (print_lex==1 ) printf("*\n"); return MULT;}
 "/" {if (print_lex==1 ) printf("/\n"); return DIV;}
 
-"\"" {if (print_lex==1 ) printf("分号\n"); return QUOT;}
+"\"" {if (print_lex==1 ) printf("引号\n"); return QUOT;}
 "%" {if (print_lex==1 ) printf("百分号\n"); return PERCENT;}
 "&" {if (print_lex==1 ) printf("&\n"); return LOGICAND;}
 "\\n" {if (print_lex==1 ) printf("换行\n"); return LINEBREAK;}
@@ -68,6 +68,8 @@ blank   [ \t\v\n\f\r]
 "function" {if (print_lex==1 ) printf("function\n"); return FUNCTION;}
 "cin" {if (print_lex==1 ) printf("cin\n"); return INPUT;}
 "cout" {if (print_lex==1 ) printf("cout\n"); return OUTPUT;}
+
+\"(\\.|[^"\\])*\" {if (print_lex==1 ) printf("format string:%s\n",yytext); return FormatStr;}
 
 {FLOAT} {
     if (print_lex==1 ) 
