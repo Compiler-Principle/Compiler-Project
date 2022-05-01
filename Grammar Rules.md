@@ -44,7 +44,7 @@
 
 // 变量定义，支持数组，这里数组的方括号中需要填一个int
 
-    VarDec -> ID | VarDec LB INT RB | LOGICAND Exp
+    VarDec -> ID | VarDec LB INT RB
 
 //FunDec为函数定义，包括有参数的和无参数的
 
@@ -76,6 +76,8 @@
     | If_Stmt
     | If_Else_Stmt
     | While_Stmt
+    | Input_Exp
+    | Output_Exp
 
 ### Expression
 //Format_Str作为格式化输入，感觉需要修改lex得到双引号的位置
@@ -92,6 +94,12 @@
     | Exp MINUS Exp 
     | Exp MULT Exp 
     | Exp DIV Exp 
+    | Exp EQUAL Exp
+    | Exp LE Exp
+    | Exp GE Exp
+    | Exp NE Exp
+    | Exp LESS Exp
+    | Exp GREATER Exp
     | LP Exp RP 
     | MINUS Exp 
     | NOT Exp 
@@ -100,6 +108,7 @@
     | Exp LB Exp RB 
     | Exp DOT ID 
     | ID 
-    | Type
+    | INT
+    | FLOAT
     
     Args -> Exp COMMA Args | Exp

@@ -2,13 +2,18 @@
 int n;
 int data[1000];
 function void qsort(int l,int r){
+    int ll;
+    int rr;
+    int pivot;
+    int tmp;
+
+    ll = l;
+    rr = r;
+    pivoit = data[l];
+
     if(l>r){
         return;
     }
-    int ll=l;
-    int rr=r;
-    int pivot=data[l];
-    int tmp;
     while(ll<rr){
         while(data[ll]<pivot){
             ll=ll+1;
@@ -30,8 +35,9 @@ function void qsort(int l,int r){
     qsort(ll,r);
 }
 function int main(){
-    int i=1;
+    int i;
     int n;
+    i = 1;
     cin("%d",&n);
     while(i<=n){
         cin("%d",&data[i]);
