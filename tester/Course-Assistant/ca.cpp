@@ -9,6 +9,7 @@ public:
     std::string prereq;
     int grade;
     course(std::string n, int c, std::string p, int g):name(n), credit(c), prereq(p), grade(g){}
+    course(){}
 
 };
 
@@ -21,19 +22,6 @@ int parseGrade(std::string g){
     else return -1;
 }
 
-
-
-void split(const std::string& s, std::vector<std::string>& tokens, const std::string& delimiters = "|") {
-    std::string::size_type lastPos = s.find_first_not_of(delimiters, 0);
-    std::string::size_type pos = s.find_first_of(delimiters, lastPos);
-    while (std::string::npos != pos || std::string::npos != lastPos) {
-        tokens.push_back(s.substr(lastPos, pos - lastPos));//use emplace_back after C++11
-        lastPos = s.find_first_not_of(delimiters, pos);
-        pos = s.find_first_of(delimiters, lastPos);
-        printf("%d %d\n", pos, lastPos);
-
-    }
-}
 
 void lineSplit(const std::string& s, std::vector<std::string>& tokens, const std::string& delimiters = "|") {
     int delimiter_idx[5] = {0, 0, 0, 0, 0};
@@ -50,9 +38,9 @@ void lineSplit(const std::string& s, std::vector<std::string>& tokens, const std
             tokens.push_back(s.substr(delimiter_idx[i], delimiter_idx[i+1]-delimiter_idx[i]));
 
         }
-       else{
+        else{
             tokens.push_back(s.substr(delimiter_idx[i]+1, delimiter_idx[i+1]-delimiter_idx[i]-1));
-       }
+        }
     }
 //    for(int i = 0; i < 4; i++){
 //        printf("%d %d\n", delimiter_idx[i], delimiter_idx[i+1]);
@@ -60,7 +48,19 @@ void lineSplit(const std::string& s, std::vector<std::string>& tokens, const std
 //    for(std::string t : tokens){
 //        printf("%s###\n", t.c_str());
 //    }
+}
 
+
+void summary(double gpa, int hAttempt, int hComplete, int cRemain, std::vector<std::string> courses){
+
+    printf("GPA: %.1f\n", gpa);
+    printf("Hours Attempted: %d\n", hAttempt);
+    printf("Hours Completed: %d\n", hComplete);
+    printf("Credits Remaining: %d\n", cRemain);
+    printf("Possible Courses to Take Next\n");
+    for(const std::string& c : courses){
+        printf("%s\n", c.c_str());
+    }
 }
 
 int main(){
@@ -68,13 +68,38 @@ int main(){
     char name_c[100], prereq_c[100], credit_c[100], grade_c[100];
     int credit, grade;
     std::string line;
-//    while(scanf("%s|%s|%s|%s", name_c, credit_c, prereq_c, grade_c) != EOF){
+    course cs[105];
+    int cnt = 0;
     while(getline(std::cin, line)){
         std::vector<std::string> t;
         lineSplit(line, t);
-
-        std::cout << t.size() << std::endl;
+        cs[cnt] = course(t[0], atoi(t[1].c_str()), t[2], parseGrade(t[3]));
+        cnt++;
     }
+    int hAttempt = 0;
+    int hComplete = 0;
+    int cRemain = 0;
+    double credit_score = 0.0;
+    std::vector<std::string> nextCourse;
+    for(int i = 0; i < cnt; i++){
+        if(cs[i].grade == -1){
+            // -1 代表未修过
+            cRemain += cs[i].credit;
+        }
+        else if(cs[i].grade == 0){
+            // 0 代表Fail
+            credit_score += 0.0;
+            hAttempt += cs[i].credit;
+
+        }
+        else{
+            // 正常得分
+            credit_score += cs[i].grade * cs[i].credit;
+            hAttempt += cs[i].credit;
+            hComplete += cs[i].credit;
+        }
+    }
+    summary(hAttempt==0 ? 0.0 : credit_score/hAttempt, hAttempt, hComplete, cRemain, nextCourse);
 
     return 0;
 
