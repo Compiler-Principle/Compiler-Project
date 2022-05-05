@@ -22,34 +22,42 @@ int parseGrade(std::string g){
     else return -1;
 }
 
+int strCount(std::string s, char c){
+    int count = 0;
+    for(int i = 0; i < s.size(); i++){
+        if(s[i] == c) count++;
+    }
+    return count;
+}
 
 std::vector<std::string> lineSplit(const std::string& s,  const std::string& delimiters = "|") {
     std::vector<std::string> tokens;
-    int delimiter_idx[5] = {0, 0, 0, 0, 0};
+    int deli_count = strCount(s, delimiters[0]);
+    int delimiter_idx[100] = {0}; // 至少deli_count+2个元素
     int ii = 1;
-    delimiter_idx[4] = s.size();
+    delimiter_idx[deli_count+1] = s.size();
     for(int i = 0; i < s.size(); i++){
         if(s[i] == delimiters[0]){
             delimiter_idx[ii] = i;
             ii++;
         }
     }
-    for(int i = 0; i < 4; i++){
+    for(int i = 0; i < deli_count+1; i++){
         if(i == 0){
             tokens.push_back(s.substr(delimiter_idx[i], delimiter_idx[i+1]-delimiter_idx[i]));
-
         }
         else{
             tokens.push_back(s.substr(delimiter_idx[i]+1, delimiter_idx[i+1]-delimiter_idx[i]-1));
         }
     }
-    return tokens;
-//    for(int i = 0; i < 4; i++){
+//    for(int i = 0; i < deli_count+1; i++){
 //        printf("%d %d\n", delimiter_idx[i], delimiter_idx[i+1]);
 //    }
 //    for(std::string t : tokens){
 //        printf("%s###\n", t.c_str());
 //    }
+    return tokens;
+
 }
 
 
@@ -86,7 +94,7 @@ int main(){
     int cRemain = 0;
     double credit_score = 0.0;
     std::vector<std::string> nextCourse;
-    printf("cnt: %d\n", cnt);
+//    printf("cnt: %d\n", cnt);
     for(int i = 0; i < cnt; i++){
         if(cs[i].grade == -1){
             // -1 代表未修过
@@ -110,7 +118,7 @@ int main(){
 
     for(int i = 0; i < cnt; i++){
         // 判断当前课程是否能够被推荐
-        if(cs[i].grade == -1 || cs[i].grade == -1){
+        if(cs[i].grade == -1 || cs[i].grade == 0){
             // 未修过 或者已经挂科了
             if(cs[i].prereq == ""){
                 // 没有先修课程
@@ -129,14 +137,30 @@ int main(){
                 else{
                     valid_pre_strs.push_back(cs[i].prereq);
                 }
+//                if(cs[i].name == "c12") {
+//                    int asdf = 0;
+//                }
                 for(std::string& s : valid_pre_strs){
-                    std::cout << "s: " << s << std::endl;
+//                    std::cout << "s: " << s << std::endl;
+                    std::vector<std::string> pre_strs; // 某一条先修课程们的名字
+                    if(strContains(s, ",")){
+                        // 有多个先修课程
+                        pre_strs = lineSplit(s, ",");
+                    }
+                    else{
+                        pre_strs.push_back(s);
+                    }
+//                    for(std::string& pre : pre_strs){
+//                        std::cout << "-- " << pre ;
+//                    }
+//                    std::cout << std::endl;
                     // 如果本个先修课程的要求都满足了，那么就可以推荐
-                    std::vector<std::string> pre_strs = lineSplit(s, ",");
                     canTake = true;
                     for(int k = 0; k < cnt; k++){
+                        int ttt = pre_strs.size();
                         for(int l = 0; l < pre_strs.size(); l++){
                             if(cs[k].name == pre_strs[l]){
+//                                printf("name: %s\n", cs[k].name.c_str());
                                 if(cs[k].grade == -1 || cs[k].grade == 0){
                                     // 如果先修课程未修过，那么就不能推荐
                                     // 如果先修课程Fail，那么就不能推荐
