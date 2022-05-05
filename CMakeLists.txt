@@ -4,4 +4,4 @@ project(Compiler_Project)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(Compiler_Project
-        tester/Course-Assistant/ca.cpp)
+        tester/auto-advisor/ca.cpp)
