@@ -139,11 +139,11 @@ int main(){
                 else{
                     valid_pre_strs.push_back(cs[i].prereq);
                 }
-//                if(cs[i].name == "c12") {
-//                    int asdf = 0;
-//                }
+                if(cs[i].name == "c75") {
+                    int asdf = 0;
+                }
                 for(std::string& s : valid_pre_strs){
-//                    std::cout << "s: " << s << std::endl;
+                    std::cout << "s: " << s << std::endl;
                     std::vector<std::string> pre_strs; // 某一条先修课程们的名字
                     if(strContains(s, ",")){
                         // 有多个先修课程
@@ -152,18 +152,24 @@ int main(){
                     else{
                         pre_strs.push_back(s);
                     }
-//                    for(std::string& pre : pre_strs){
-//                        std::cout << "-- " << pre ;
-//                    }
-//                    std::cout << std::endl;
+                    for(std::string& pre : pre_strs){
+                        std::cout << "-- " << pre ;
+                    }
+                    std::cout << std::endl;
                     // 如果本个先修课程的要求都满足了，那么就可以推荐
                     canTake = true;
+                    // 接下来检测某个要求中的每一门课
                     for(int l = 0; l < pre_strs.size(); l++){
                         int ttt = pre_strs.size();
+                        auto this_course = pre_strs[l];
+                        printf("this_course: %s\n", this_course.c_str());
+                        // 对某个this_course 需要检测在列表中的状态
                         int k;
+                        bool found = false;
                         for(k = 0; k < cnt; k++){
-                            if(cs[k].name == pre_strs[l]){
-//                                printf("name: %s\n", cs[k].name.c_str());
+                            if(cs[k].name == this_course){
+                                printf("name: %s\n", cs[k].name.c_str());
+                                found = true;
                                 if(cs[k].grade == -1 || cs[k].grade == 0){
                                     // 如果先修课程未修过，那么就不能推荐
                                     // 如果先修课程Fail，那么就不能推荐
@@ -171,11 +177,9 @@ int main(){
                                     break;
                                 }
                             }
-
-
                         }
-                        if (k == cnt){
-                            // 如果没有找到这个先修课程，那么就不能推荐
+                        if (!found){
+                            // 如果在cnt这么中没有找到这个先修课程，那么就不能推荐
                             canTake = false;
                             break;
                         }
@@ -183,13 +187,13 @@ int main(){
                             break;
                         }
                         printf("k: %d cnt: %d\n", k, cnt);
-
-
                     }
+
 
 
                     // 某一个先修课完全符合要求，也就是canTake没有被改成false，那么就可以推荐
                     if(canTake){
+                        std::cout << "add : " << cs[i].name << std::endl;
                         nextCourse.push_back(cs[i].name);
                         break; // 也不用看后面的可能预修要求了
                     }
