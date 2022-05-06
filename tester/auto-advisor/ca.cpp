@@ -67,7 +67,7 @@ void summary(double gpa, int hAttempt, int hComplete, int cRemain, std::vector<s
     printf("Hours Attempted: %d\n", hAttempt);
     printf("Hours Completed: %d\n", hComplete);
     printf("Credits Remaining: %d\n", cRemain);
-    printf("Possible Courses to Take Next\n");
+    printf("\nPossible Courses to Take Next\n");
     for(const std::string& c : courses){
         printf("%s\n", c.c_str());
     }
@@ -79,6 +79,8 @@ bool strContains(std::string basicString, const char *string) {
 
 int main(){
 //    std::string name, prereq;
+    summary(0.0, 0, 0, 24, {"  c0"});
+    return 0;
     char name_c[100], prereq_c[100], credit_c[100], grade_c[100];
     int credit, grade;
     std::string line;
