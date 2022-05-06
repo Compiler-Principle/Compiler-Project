@@ -71,6 +71,7 @@ void summary(double gpa, int hAttempt, int hComplete, int cRemain, std::vector<s
     for(const std::string& c : courses){
         printf("  %s\n", c.c_str());
     }
+    if(courses.size() == 0 && cRemain == 0) printf("  None - Congratulations!\n");
 }
 
 bool strContains(std::string basicString, const char *string) {
@@ -86,7 +87,6 @@ int main(){
     int cnt = 0;
     while(getline(std::cin, line)){
         std::vector<std::string> t = lineSplit(line);
-        std::string name = "123";
         if(t.size() == 1) break;
         cs[cnt] = course(t[0], atoi(t[1].c_str()), t[2], parseGrade(t[3]));
         cnt++;
@@ -158,9 +158,10 @@ int main(){
 //                    std::cout << std::endl;
                     // 如果本个先修课程的要求都满足了，那么就可以推荐
                     canTake = true;
-                    for(int k = 0; k < cnt; k++){
+                    for(int l = 0; l < pre_strs.size(); l++){
                         int ttt = pre_strs.size();
-                        for(int l = 0; l < pre_strs.size(); l++){
+                        int k;
+                        for(k = 0; k < cnt; k++){
                             if(cs[k].name == pre_strs[l]){
 //                                printf("name: %s\n", cs[k].name.c_str());
                                 if(cs[k].grade == -1 || cs[k].grade == 0){
@@ -169,15 +170,24 @@ int main(){
                                     canTake = false;
                                     break;
                                 }
-
-
                             }
+
+
+                        }
+                        if (k == cnt){
+                            // 如果没有找到这个先修课程，那么就不能推荐
+                            canTake = false;
+                            break;
                         }
                         if(!canTake){
                             break;
                         }
+                        printf("k: %d cnt: %d\n", k, cnt);
+
 
                     }
+
+
                     // 某一个先修课完全符合要求，也就是canTake没有被改成false，那么就可以推荐
                     if(canTake){
                         nextCourse.push_back(cs[i].name);
