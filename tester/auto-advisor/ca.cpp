@@ -50,12 +50,6 @@ std::vector<std::string> lineSplit(const std::string& s,  const std::string& del
             tokens.push_back(s.substr(delimiter_idx[i]+1, delimiter_idx[i+1]-delimiter_idx[i]-1));
         }
     }
-//    for(int i = 0; i < deli_count+1; i++){
-//        printf("%d %d\n", delimiter_idx[i], delimiter_idx[i+1]);
-//    }
-//    for(std::string t : tokens){
-//        printf("%s###\n", t.c_str());
-//    }
     return tokens;
 
 }
