@@ -69,7 +69,7 @@ void summary(double gpa, int hAttempt, int hComplete, int cRemain, std::vector<s
     printf("Credits Remaining: %d\n", cRemain);
     printf("\nPossible Courses to Take Next\n");
     for(const std::string& c : courses){
-        printf("%s\n", c.c_str());
+        printf("  %s\n", c.c_str());
     }
 }
 
@@ -79,8 +79,6 @@ bool strContains(std::string basicString, const char *string) {
 
 int main(){
 //    std::string name, prereq;
-    summary(0.0, 0, 0, 24, {"  c0"});
-    return 0;
     char name_c[100], prereq_c[100], credit_c[100], grade_c[100];
     int credit, grade;
     std::string line;
@@ -88,9 +86,15 @@ int main(){
     int cnt = 0;
     while(getline(std::cin, line)){
         std::vector<std::string> t = lineSplit(line);
+        std::string name = "123";
+        if(t.size() == 1) break;
+//        std::cout << "t[1] " << t[1] << " t size: " << t.size() <<  std::endl;
+
         cs[cnt] = course(t[0], atoi(t[1].c_str()), t[2], parseGrade(t[3]));
+//        cs[cnt] = new course(name, 1, t[2], parseGrade(t[3]));
         cnt++;
     }
+//    return 0;
     int hAttempt = 0; // 尝试学分
     int hComplete = 0; // 已修学分
     int cRemain = 0;
