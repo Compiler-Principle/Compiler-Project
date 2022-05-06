@@ -88,13 +88,9 @@ int main(){
         std::vector<std::string> t = lineSplit(line);
         std::string name = "123";
         if(t.size() == 1) break;
-//        std::cout << "t[1] " << t[1] << " t size: " << t.size() <<  std::endl;
-
         cs[cnt] = course(t[0], atoi(t[1].c_str()), t[2], parseGrade(t[3]));
-//        cs[cnt] = new course(name, 1, t[2], parseGrade(t[3]));
         cnt++;
     }
-//    return 0;
     int hAttempt = 0; // 尝试学分
     int hComplete = 0; // 已修学分
     int cRemain = 0;
