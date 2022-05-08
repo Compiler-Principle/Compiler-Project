@@ -17,6 +17,17 @@
 %token IF ELSE WHILE TYPEINT TYPEFLOAT TYPEVOID RETURN BREAK CONTINUE FUNCTION INPUT OUTPUT FormatStr
 %token FLOAT INT ID
 
+%right ASSIGN
+%left NOT
+%left OR
+%left AND
+%left EQUAL NE
+%left LE GE LESS GREATER
+%left ADD MINUS
+%left MULT DIV
+%left LOGICAND
+%left LP RP LB RB DOT
+
 %%
 Program : Def_list Fun_list
         ;
@@ -89,7 +100,6 @@ Output_Exp : OUTPUT LP FormatStr COMMA Args RP
 Exp : Exp ASSIGN Exp
     | Exp AND Exp
     | Exp OR Exp
-    | Exp NOT Exp
     | Exp ADD Exp
     | Exp MINUS Exp
     | Exp MULT Exp
