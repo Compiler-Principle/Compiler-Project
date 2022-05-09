@@ -2,7 +2,7 @@
     #include<stdio.h>
     #include <string.h>
     #include "parser.tab.h"
-    int print_lex=1;
+    int print_lex=0;
 %}
 %option yylineno
 %option noyywrap
