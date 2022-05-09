@@ -45,10 +45,10 @@ typedef enum Operator
 
 class baseAST{
 public:
-    unsigned int id;    //唯一id标识
+    unsigned id;    //唯一id标识
     Type type; //节点类型
     DataType dataType;   //节点数据类型
-    unsigned int childCnt;
+    unsigned childCnt;
     std::vector<baseAST *> children;
 
     baseAST();
@@ -57,19 +57,23 @@ public:
     void Insert(AST *);
     void print(void);
 };
-class varNode:public baseAST{ /* only for var */
+class varNode : public baseAST{
 public:
-    Type type=T_var;
-    std::string name;
+    std::string name; /* only for var */
+    varNode(const char *name);
 };
-class constNode:public baseAST{
-    Type type=T_const;
+
+class constNode : public baseAST{
+public:
     Value dvalue; /* only for const */
-}
-class operatorNode:public baseAST{
-    Type type=T_operator;
+    constNode(Value value);
+};
+
+class operatorNode : public baseAST{
+public:
     Operator op;  /* only for operator */
-}
+    operatorNode(Operator op);
+};
 
 
 #endif
