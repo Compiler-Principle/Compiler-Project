@@ -12,12 +12,12 @@ typedef enum Type
 
 typedef enum DataType
 {
-    nonedt,
-    void,
-    integer,
-    float,
-    string,
-    function,
+    DT_nonedt,
+    DT_void,
+    DT_integer,
+    DT_float,
+    DT_string,
+    DT_function,
 } DataType;
 
 typedef union Value
@@ -45,12 +45,13 @@ typedef enum Operator
 
 class baseAST{
 public:
-    int id;    //唯一id标识
+    unsigned int id;    //唯一id标识
     Type type; //节点类型
     DataType dataType;   //节点数据类型
-    int child_num;
-    std::vector<AST *> *children;
-    
+    unsigned int childCnt;
+    std::vector<baseAST *> children;
+
+    baseAST();
     baseAST(Type type, const char *name);
     ~baseAST();
     void Insert(AST *);
@@ -70,5 +71,5 @@ class operatorNode:public baseAST{
     Operator op;  /* only for operator */
 }
 
-class 
+
 #endif
