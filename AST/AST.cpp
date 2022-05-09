@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include "PainterWindow.h"
 using namespace std;
 
 
@@ -29,6 +30,7 @@ varNode::varNode(const char *name,DataType dataType){
     this->childCnt=0;
 }
 
+
 constNode::constNode(int value,DataType dataType){
     this->id=++IDAccumulate;
     this->type=Type::T_const;
@@ -36,6 +38,7 @@ constNode::constNode(int value,DataType dataType){
     this->childCnt=0;
     this->dvalue.integer=value;
 }
+
 constNode::constNode(char *value,DataType dataType){
     this->id=++IDAccumulate;
     this->type=Type::T_const;
@@ -43,6 +46,7 @@ constNode::constNode(char *value,DataType dataType){
     this->childCnt=0;
     this->dvalue.str=value;
 }
+
 constNode::~constNode(){
     delete this->dvalue.str;
 }
@@ -54,8 +58,12 @@ operatorNode::operatorNode(Operator op,DataType dataType){
     this->childCnt=0;
 }
 
-int main(){
-    // varNode vv=new varNode();
-    // constNode cc;
-    // cout<<cc.id;
+void baseAST::print() {
+    int a = 0, &i = a;
+    QApplication app(i, nullptr);
+
+    PainterWindow w(this);
+    w.show();
+    app.exec();
+
 }
