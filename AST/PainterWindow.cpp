@@ -1,3 +1,4 @@
+#include <queue>
 #include "PainterWindow.h"
 #include "AST.h"
 
@@ -21,6 +22,22 @@ void PainterWindow::paintEvent(QPaintEvent *){
 
 PainterWindow::PainterWindow(baseAST *node) {
     this->ast = node;
+}
+
+std::vector<baseAST *> PainterWindow::traversal() const {
+    // TODO: implement 2D return vector with level index
+    std::vector<baseAST *> ret;
+    std::queue<baseAST *> q;
+    q.push(this->ast);
+    while(!q.empty()) {
+        baseAST *top =q.front();
+        for(auto t: top->children) {
+            ret.push_back(t);
+        }
+        q.pop();
+    }
+
+    return ret;
 }
 
 int baseAST::IDAccumulate = 0;

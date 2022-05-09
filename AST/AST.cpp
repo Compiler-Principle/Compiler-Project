@@ -1,8 +1,8 @@
 #include "AST.h"
+#include "PainterWindow.h"
 #include <iostream>
 #include <vector>
 #include <cstring>
-#include "PainterWindow.h"
 using namespace std;
 
 

@@ -22,13 +22,13 @@
 
 class PainterWindow : public QWidget {
 public:
+    baseAST *ast;
     explicit PainterWindow(QWidget *parent = 0);
-
     PainterWindow(baseAST *node);
 
     ~PainterWindow();
     void paintEvent(QPaintEvent *);
-    baseAST *ast;
+    std::vector<baseAST *> traversal() const;
 
 private:
 };
