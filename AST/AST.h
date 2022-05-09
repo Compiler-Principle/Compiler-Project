@@ -5,13 +5,13 @@
 #include <map>
 typedef enum Type
 {
-    operator,
-    var,
+    T_operator,
+    T_var,
+    T_const,
 } Type;
 
 typedef enum DataType
 {
-    
     nonedt,
     void,
     integer,
@@ -19,6 +19,29 @@ typedef enum DataType
     string,
     function,
 } DataType;
+
+typedef union Value
+{
+    int integer;
+    char *str;
+} Value;
+typedef enum Operator
+{
+    noneop,
+    OR,
+    AD,
+    EQ,
+    LE,
+    GE,
+    NE,
+    LT,
+    GT,
+    add,
+    min,
+    mul,
+    ddi,
+    mod,
+} Operator;
 
 class baseAST{
 public:
@@ -28,11 +51,24 @@ public:
     int child_num;
     std::vector<AST *> *children;
     
-    AST(Type type, const char *name);
-    ~AST();
+    baseAST(Type type, const char *name);
+    ~baseAST();
     void Insert(AST *);
     void print(void);
 };
-class 
+class varNode:public baseAST{ /* only for var */
+public:
+    Type type=T_var;
+    std::string name;
+};
+class constNode:public baseAST{
+    Type type=T_const;
+    Value dvalue; /* only for const */
+}
+class operatorNode:public baseAST{
+    Type type=T_operator;
+    Operator op;  /* only for operator */
+}
 
+class 
 #endif
