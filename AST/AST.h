@@ -5,6 +5,7 @@
 #include <map>
 typedef enum Type
 {
+    T_none,
     T_operator,
     T_var,
     T_const,
@@ -25,6 +26,7 @@ typedef union Value
     int integer;
     char *str;
 } Value;
+
 typedef enum Operator
 {
     noneop,
@@ -45,6 +47,7 @@ typedef enum Operator
 
 class baseAST{
 public:
+    static int IDAccumulate;
     unsigned id;    //唯一id标识
     Type type; //节点类型
     DataType dataType;   //节点数据类型
@@ -52,27 +55,32 @@ public:
     std::vector<baseAST *> children;
 
     baseAST();
-    baseAST(Type type, const char *name);
-    ~baseAST();
-    void Insert(AST *);
+    baseAST(Type type,DataType dataType);
+    // ~baseAST();
+    void Insert(baseAST *);
     void print(void);
 };
+int baseAST::IDAccumulate = 0;
 class varNode : public baseAST{
 public:
     std::string name; /* only for var */
-    varNode(const char *name);
+    varNode(const char *name,DataType dataType);
+    ~varNode();
 };
 
 class constNode : public baseAST{
 public:
     Value dvalue; /* only for const */
-    constNode(Value value);
+    constNode(int value,DataType dataType);
+    constNode(char *value,DataType dataType);
+    ~constNode();
 };
 
 class operatorNode : public baseAST{
 public:
     Operator op;  /* only for operator */
-    operatorNode(Operator op);
+    operatorNode(Operator op,DataType dataType);
+    ~operatorNode();
 };
 
 
