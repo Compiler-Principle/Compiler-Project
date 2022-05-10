@@ -60,7 +60,7 @@ public:
     void Insert(baseAST *);
     void print(void);
 };
-int baseAST::IDAccumulate = 0;
+
 class varNode : public baseAST{
 public:
     std::string name; /* only for var */
