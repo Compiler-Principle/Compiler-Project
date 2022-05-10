@@ -18,7 +18,9 @@
 #include <QPointF>
 #include <QLabel>
 #include "AST.h"
+#include "json.hpp"
 
+using json_t = nlohmann::json;
 
 class PainterWindow : public QWidget {
 public:

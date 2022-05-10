@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <fstream>
+
 using namespace std;
 
 
@@ -58,12 +60,47 @@ operatorNode::operatorNode(Operator op,DataType dataType){
     this->childCnt=0;
 }
 
+json_t genJson(baseAST *ast){
+    json_t treeRoot;
+    treeRoot["id"]=ast->id;
+    treeRoot["type"]=ast->type;
+    treeRoot["dataType"]=ast->dataType;
+    treeRoot["name"] = "11";
+    treeRoot["childCnt"]=ast->childCnt;
+    json_t c = json_t::array();
+    for(int i=0;i<ast->childCnt;i++){
+        c.push_back(genJson(ast->children[i]));
+    }
+    treeRoot["children"]=c;
+    return treeRoot;
+}
+
+
+
 void baseAST::print() {
     int a = 0, &i = a;
-    QApplication app(i, nullptr);
 
-    PainterWindow w(this);
-    w.show();
-    app.exec();
+    ofstream outfile;
+    outfile.open("../visu/src/tree.json");
+    outfile<<genJson(this).dump(2);
+    outfile.close();
+}
 
+
+int baseAST::IDAccumulate = 0;
+
+int main(int argc, char ** argv){
+    baseAST * ast = new baseAST();
+    ast->childCnt=2;
+    ast->children.push_back(new varNode("a",DataType::DT_integer));
+    ast->children.push_back(new constNode(1,DataType::DT_integer));
+
+    ofstream outfile;
+    outfile.open("../visu/src/1.json");
+    outfile<<genJson(ast).dump(2);
+    outfile.close();
+    std::cout << genJson(ast).dump(2) << std::endl;
+
+
+    return 0;
 }

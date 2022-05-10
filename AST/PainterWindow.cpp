@@ -40,12 +40,3 @@ std::vector<baseAST *> PainterWindow::traversal() const {
     return ret;
 }
 
-int baseAST::IDAccumulate = 0;
-
-int main(int argc, char ** argv){
-    baseAST a;
-    a.print();
-
-
-    return 0;
-}
