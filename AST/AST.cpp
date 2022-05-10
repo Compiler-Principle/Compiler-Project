@@ -54,8 +54,15 @@ operatorNode::operatorNode(Operator op,DataType dataType){
     this->childCnt=0;
 }
 
+void baseAST::Insert(baseAST *p){
+    this->childCnt++;
+    children.push_back(p);
+}
+
 int main(){
-    // varNode vv=new varNode();
+    // varNode* vv=new varNode("hhh",DT_string);
+    // varNode* vv2=new varNode("xixi",DT_string);
+    // vv->Insert(vv2);
     // constNode cc;
     // cout<<cc.id;
 }
