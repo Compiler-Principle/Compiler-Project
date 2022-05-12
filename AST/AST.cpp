@@ -1,6 +1,7 @@
 #include "AST.h"
 #include "PainterWindow.h"
 #include <iostream>
+#include <utility>
 #include <vector>
 #include <cstring>
 #include <fstream>
@@ -111,7 +112,7 @@ void baseAST::buildTable(Func *scope) {
                 // Global var
                 if(globalVars.find(this->name) == globalVars.end()){
                     // Duplicate variable
-                    std::cerr << "[Error]: Duplicate global variable " << this->name << std::endl;
+                    info(InfoLevel::ERROR, "Duplicate global variable: " + this->name);
                 }else{
                      globalVars[this->name] = new Var(this->name,this->dataType);
                 }
@@ -120,7 +121,7 @@ void baseAST::buildTable(Func *scope) {
                 // Local var
                 if(scope->localVars.find(this->name) != scope->localVars.end()) {
                     // Duplicate variable
-                    std::cerr << "Error: Duplicate local variable " << this->name << std::endl;
+                    info(InfoLevel::ERROR, "Duplicate local variable: " + this->name);
                 }else {
                     scope->localVars[this->name] = new Var(this->name,this->dataType);
                 }
@@ -129,9 +130,21 @@ void baseAST::buildTable(Func *scope) {
         case Type::T_func:
             // Insert the constant into the globalFuncs symbol table
             if(scope != nullptr){
-                std::cerr << "[Error]: CLOSURE IS INVALID!" << std::endl;
+                info(InfoLevel::ERROR, "CLOSURE IS INVALID!");
+            }
+            else{
+                // global functions
+                if(globalFuncs.find(this->name) != globalFuncs.end()){
+                    // Duplicate function
+                    info(InfoLevel::ERROR, "Duplicate global function: " + this->name);
+                }else{
+                    globalFuncs[this->name] = new Func(this->name,this->dataType);
+                }
+
             }
 
+            break;
+        case Type::T_operator:
             break;
         default:
 
@@ -141,14 +154,17 @@ void baseAST::buildTable(Func *scope) {
 
 }
 
+baseAST::baseAST(Type type, std::string name) : type(type), name(std::move(name)) {
+    this->id=++IDAccumulate;
+    this->childCnt=0;
+}
+
+
+
 int main(int argc, char ** argv){
 
     std::map<std::string, Var *> varTable;
     std::map<std::string, Func *> funcTable;
-
-    std::cerr << "[Error]: CLOSURE IS INVALID!" << std::endl;
-
-
 
 
     return 0;

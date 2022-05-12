@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "../info/info.h"
+
 typedef enum Type
 {
     T_none,
@@ -31,20 +33,20 @@ typedef union Value
 
 typedef enum Operator
 {
-    noneop,
-    OR,
-    AD,
-    EQ,
-    LE,
-    GE,
-    NE,
-    LT,
-    GT,
-    add,
-    min,
-    mul,
-    ddi,
-    mod,
+    O_noneop,
+    O_OP,
+    O_AD,
+    O_EQ,
+    O_LE,
+    O_GE,
+    O_NE,
+    O_LT,
+    O_GT,
+    O_add,
+    O_min,
+    O_mul,
+    O_ddi,
+    O_mod,
 } Operator;
 
 
@@ -84,6 +86,7 @@ public:
 
     baseAST();
     baseAST(Type type,DataType dataType);
+    baseAST(Type type, std::string name);
     // ~baseAST();
     void Insert(baseAST *);
     void print(void);

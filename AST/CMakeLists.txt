@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 #--------------Add Targets of Project Begin --------------#
 
 add_executable(Compiler_Project
-        AST.cpp PainterWindow.cpp )
+        AST.cpp PainterWindow.cpp ../info/info.cpp ../info/info.h)
 
 #--------------Add Targets of Project End --------------#
 #include_directories("/opt/homebrew/Cellar/qt@5/5.15.2/include")

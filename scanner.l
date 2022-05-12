@@ -1,6 +1,7 @@
 %{
     #include<stdio.h>
     #include <string.h>
+    #include "AST/AST.h"
     #include "parser.tab.h"
     int print_lex=1;
 %}

@@ -1,12 +1,15 @@
 %{
     #include<stdio.h>
     #include "lex.yy.c"
+    #include "AST/AST.h"
     void yyerror(const char*);
+    extern baseAST *head;
 %}
 %union {
     int type_int;
     float type_float;
     char* type_str;
+    baseAST *type_ast;
 }
 %token EQUAL LE GE NE LESS GREATER
 %token ASSIGN
@@ -28,8 +31,15 @@
 %left LOGICAND
 %left LP RP LB RB DOT
 
+%type <type_ast>    Program Def_list Fun_list
+
 %%
-Program : Def_list Fun_list
+Program : Def_list Fun_list {
+    //$$ = new baseAST();
+    head = $$;
+    //head->Insert($1);
+    //head->Insert($2);
+}
         ;
 
 Def_list : Def_list Var SEMI
