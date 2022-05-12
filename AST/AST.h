@@ -1,5 +1,6 @@
 #ifndef AST_H
 #define AST_H
+#include <utility>
 #include <vector>
 #include <string>
 #include <map>
@@ -9,6 +10,7 @@ typedef enum Type
     T_operator,
     T_var,
     T_const,
+    T_func,
 } Type;
 
 typedef enum DataType
@@ -45,10 +47,36 @@ typedef enum Operator
     mod,
 } Operator;
 
+
+class Var {
+public:
+    std::string name;
+    DataType type;
+    Var(std::string name, DataType type) : name(std::move(name)), type(type) {}
+
+    ~Var() {}
+
+};
+
+
+class Func {
+public:
+    std::string name;
+    DataType type;
+    std::map<std::string, Var *> localVars; // local variables in the specific function
+
+    Func(std::string name, DataType rtype): name(std::move(name)), type(rtype) {}
+
+    ~Func(){}
+};
+
+
 class baseAST{
 public:
+
     static int IDAccumulate;
     unsigned id;    //唯一id标识
+    std::string name; // 名称，用于存储和传递
     Type type; //节点类型
     DataType dataType;   //节点数据类型
     unsigned childCnt;
@@ -59,6 +87,7 @@ public:
     // ~baseAST();
     void Insert(baseAST *);
     void print(void);
+    void buildTable(Func *scope);
 };
 
 class varNode : public baseAST{
