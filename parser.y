@@ -35,10 +35,10 @@
 
 %%
 Program : Def_list Fun_list {
-    //$$ = new baseAST();
+    $$ = new baseAST();
     head = $$;
-    //head->Insert($1);
-    //head->Insert($2);
+    head->Insert($1);
+    head->Insert($2);
 }
         ;
 

@@ -1,5 +1,4 @@
 #include "AST.h"
-#include "PainterWindow.h"
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -146,6 +145,9 @@ void baseAST::buildTable(Func *scope) {
             break;
         case Type::T_operator:
             break;
+        case Type::T_defi:
+            break;
+
         default:
 
             break;
@@ -161,11 +163,11 @@ baseAST::baseAST(Type type, std::string name) : type(type), name(std::move(name)
 
 
 
-int main(int argc, char ** argv){
-
-    std::map<std::string, Var *> varTable;
-    std::map<std::string, Func *> funcTable;
-
-
-    return 0;
-}
+//int main(int argc, char ** argv){
+//
+//    std::map<std::string, Var *> varTable;
+//    std::map<std::string, Func *> funcTable;
+//
+//
+//    return 0;
+//}

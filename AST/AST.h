@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 #include "../info/info.h"
+#include "json.hpp"
+using json_t = nlohmann::json;
 
 typedef enum Type
 {
@@ -13,6 +15,7 @@ typedef enum Type
     T_var,
     T_const,
     T_func,
+    T_defi,
 } Type;
 
 typedef enum DataType
