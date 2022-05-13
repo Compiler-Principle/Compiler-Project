@@ -1,5 +1,5 @@
 parser : main.cpp parser.tab.c lex.yy.c
-	@g++ main.cpp parser.tab.c -o parser
+	@g++ main.cpp parser.tab.c AST/AST.cpp info/info.cpp -o parser
 
 parser.tab.c : parser.y
 	@bison -d parser.y -v --debug
