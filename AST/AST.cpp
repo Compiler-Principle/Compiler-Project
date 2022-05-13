@@ -163,11 +163,11 @@ baseAST::baseAST(Type type, std::string name) : type(type), name(std::move(name)
 
 
 
-//int main(int argc, char ** argv){
-//
+// int main(int argc, char ** argv){
+
 //    std::map<std::string, Var *> varTable;
 //    std::map<std::string, Func *> funcTable;
-//
-//
+
+
 //    return 0;
-//}
+// }
