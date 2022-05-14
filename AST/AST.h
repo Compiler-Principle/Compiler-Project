@@ -10,6 +10,7 @@ using json_t = nlohmann::json;
 
 typedef enum Type
 {
+    T_root,
     T_none,
     T_operator,
     T_var,
