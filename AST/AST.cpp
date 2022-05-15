@@ -47,6 +47,13 @@ constNode::constNode(char *value, AST_DataType dataType){
     this->childCnt=0;
     this->dvalue.str=value;
 }
+constNode::constNode(float value, AST_DataType dataType){
+    this->id=++IDAccumulate;
+    this->type=AST_Type::T_const;
+    this->dataType=dataType;
+    this->childCnt=0;
+    this->dvalue.floatt=value;
+}
 
 constNode::~constNode(){
     delete this->dvalue.str;
@@ -70,7 +77,7 @@ json_t genJson(baseAST *ast){
     treeRoot["id"]=ast->id;
     treeRoot["type"]=ast->type;
     treeRoot["dataType"]=ast->dataType;
-    treeRoot["name"] = "11";
+    treeRoot["name"] = "22";
     treeRoot["childCnt"]=ast->childCnt;
     json_t c = json_t::array();
     for(int i=0;i<ast->childCnt;i++){
@@ -83,11 +90,11 @@ json_t genJson(baseAST *ast){
 
 
 void baseAST::print() {
-    int a = 0, &i = a;
 
     std::ofstream outfile;
-    outfile.open("../visu/src/tree.json");
+    outfile.open("./tree.json");
     outfile<<genJson(this).dump(2);
+    std::cout << "Hi~~~" << std::endl;
     outfile.close();
 }
 

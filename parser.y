@@ -36,7 +36,7 @@
 %left LP RP LB RB DOT
 
 %type <type_ast>    Program Def_list Fun_list Var Var_List Fun Fun_Var_List Fun_Var VarDec
-%type <type_ast> AST_Type CBlock Stmt_list Stmt IF_Stmt If_Else_Stmt While_Stmt Input_Exp Output_Exp Exp Args
+%type <type_ast>    AST_Type CBlock Stmt_list Stmt IF_Stmt If_Else_Stmt While_Stmt Input_Exp Output_Exp Exp Args
 
 %%
 Program : Def_list Fun_list {
@@ -133,21 +133,21 @@ Exp : Exp ASSIGN Exp{$$=new baseAST(AST_Type::T_expr,"ASSIGN");$$->Insert($1);$$
     | Exp NE Exp{$$=new operatorNode(AST_Operator::O_NE,"NE");$$->Insert($1);$$->Insert($3);}
     | Exp LESS Exp{$$=new operatorNode(AST_Operator::O_LESS,"LESS");$$->Insert($1);$$->Insert($3);}
     | Exp GREATER Exp{$$=new operatorNode(AST_Operator::O_GREATER,"GREATER");$$->Insert($1);$$->Insert($3);}
-    | LOGICAND Exp
-    | LP Exp RP
-    | MINUS Exp
-    | NOT Exp
-    | ID LP Args RP
-    | ID LP RP
-    | Exp LB Exp RB
-    | Exp DOT ID
-    | ID
-    | INT
-    | FLOAT
+    | LOGICAND Exp{$$=new operatorNode(AST_Operator::O_LOGICAND,"LOGICAND");$$->Insert($2);}
+    | LP Exp RP{$$=$2;}
+    | MINUS Exp{$$=new operatorNode(AST_Operator::O_MINUSDIGIT,"MINUSDIGIT");$$->Insert($2);}
+    | NOT Exp{$$=new operatorNode(AST_Operator::O_NOT,"NOT");$$->Insert($2);}
+    | ID LP Args RP{$$=new baseAST(AST_Type::T_expr,$1);delete $1;$$->Insert($3);}
+    | ID LP RP{$$=new baseAST(AST_Type::T_expr,$1);delete $1;}
+    | Exp LB Exp RB{$$=$1;$$->Insert($3);}
+    | Exp DOT Exp{$$=$1;$$->Insert($3);}
+    | ID{$$=new baseAST(AST_Type::T_var,$1);delete $1;}
+    | INT{$$=new constNode($1,AST_DataType::DT_integer);}
+    | FLOAT{$$=new constNode($1,AST_DataType::DT_float);}
     ;
 
-Args : Exp COMMA Args
-     | Exp
+Args : Args COMMA Exp{$$=$1;$$->Insert($3);}
+     | Exp{$$=new baseAST(AST_Type::T_list,"Args");$$->Insert($1);}
      ;
 
 %%

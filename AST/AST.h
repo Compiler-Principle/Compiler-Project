@@ -21,7 +21,8 @@ typedef enum AST_Type
     T_list,
     T_tydf, 
     T_expr,
-    T_formatstr
+    T_formatstr,
+    T_value
 } Type;
 
 typedef enum AST_DataType
@@ -38,6 +39,7 @@ typedef union AST_Value
 {
     int integer;
     char *str;
+    float floatt;
 } Value;
 
 typedef enum AST_Operator
@@ -54,6 +56,9 @@ typedef enum AST_Operator
     O_NE,
     O_LESS,
     O_GREATER,
+    O_LOGICAND,
+    O_MINUSDIGIT,
+    O_NOT,
     O_noneop,
     // O_OR,
     // O_AND,
@@ -123,11 +128,13 @@ public:
     ~varNode();
 };
 
+
 class constNode : public baseAST{
 public:
     AST_Value dvalue; /* only for const */
     constNode(int value, AST_DataType dataType);
     constNode(char *value, AST_DataType dataType);
+    constNode(float value,AST_DataType dataType);
     ~constNode();
 };
 
