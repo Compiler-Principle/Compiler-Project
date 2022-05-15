@@ -1,9 +1,5 @@
 #include "AST.h"
-#include <iostream>
-#include <utility>
-#include <vector>
-#include <cstring>
-#include <fstream>
+
 
 //using namespace std;
 
@@ -62,6 +58,7 @@ constNode::~constNode(){
 operatorNode::operatorNode(AST_Operator op, std::string name){
     this->id=++IDAccumulate;
     this->type=AST_Type::T_operator;
+    this->op=op;
     // this->dataType=dataType;
     this->name=name;
     this->childCnt=0;
@@ -77,10 +74,13 @@ json_t genJson(baseAST *ast){
     treeRoot["id"]=ast->id;
     treeRoot["type"]=ast->type;
     treeRoot["dataType"]=ast->dataType;
-    treeRoot["name"] = "22";
+    char n[100];
+    sprintf(n, "id:{%d} type:{%d} dataType:{%d}", ast->id, ast->type, ast->dataType);
+    std::string name(n);
+    treeRoot["name"] = name;
     treeRoot["childCnt"]=ast->childCnt;
     json_t c = json_t::array();
-    for(int i=0;i<ast->childCnt;i++){
+    for(int i=0;i<ast->children.size();i++){
         c.push_back(genJson(ast->children[i]));
     }
     treeRoot["children"]=c;
@@ -90,9 +90,9 @@ json_t genJson(baseAST *ast){
 
 
 void baseAST::print() {
-
     std::ofstream outfile;
-    outfile.open("./tree.json");
+    outfile.open("./AST/visu/src/tree.json");
+    std::cout << "printing tree" << std::endl;
     outfile<<genJson(this).dump(2);
     std::cout << "Hi~~~" << std::endl;
     outfile.close();

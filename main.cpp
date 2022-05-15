@@ -12,5 +12,6 @@ int main(int argc,char** argv){
     }
     yyin=f;
     yyparse();
+    head->print();
     return 0;
 }

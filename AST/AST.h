@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <iostream>
+#include <cstring>
+#include <fstream>
 #include "../info/info.h"
 #include "json.hpp"
 using json_t = nlohmann::json;
@@ -77,7 +80,6 @@ typedef enum AST_Operator
     // O_mod,
 } Operator;
 
-
 class Var {
 public:
     std::string name;
@@ -140,10 +142,10 @@ public:
 
 class operatorNode : public baseAST{
 public:
-    operatorNode(AST_Operator op, std::string name);
 
     AST_Operator op;  /* only for operator */
     operatorNode(AST_Operator op, AST_DataType dataType);
+    operatorNode(AST_Operator op, std::string name);
     ~operatorNode();
 };
 
