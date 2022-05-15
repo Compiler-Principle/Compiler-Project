@@ -151,7 +151,6 @@ json_t genJson(baseAST *ast){
 void baseAST::print() {
     std::ofstream outfile;
     outfile.open("./AST/visu/src/tree.json");
-    std::cout << "printing tree" << std::endl;
     outfile<<genJson(this).dump(2);
     outfile.close();
 }
@@ -165,21 +164,21 @@ baseAST* fakeTree(){
 }
 
 int baseAST::IDAccumulate = 0;
-std::map<std::string, Var *> globalVars;
-std::map<std::string, Func *> globalFuncs;
 
 void baseAST::buildTable(Func *scope) {
     // Traverse among the tree to build the symbol table
+//     std::cout << "target type: " << this->type << std::endl;
     switch (this->type) {
         case AST_Type::T_var:
             // Insert the variable into the functino symbol table
             if(scope == nullptr){
                 // Global var
-                if(globalVars.find(this->name) == globalVars.end()){
+                if(globalVars.find(this->name) != globalVars.end()){
                     // Duplicate variable
                     info(InfoLevel::ERROR, "Duplicate global variable: " + this->name);
                 }else{
-                     globalVars[this->name] = new Var(this->name,this->dataType);
+//                    info(InfoLevel::INFO, "Create global var " + this->name);
+                    globalVars[this->name] = new Var(this->name,this->dataType);
                 }
             }
             else {
@@ -188,6 +187,7 @@ void baseAST::buildTable(Func *scope) {
                     // Duplicate variable
                     info(InfoLevel::ERROR, "Duplicate local variable: " + this->name);
                 }else {
+//                    info(InfoLevel::INFO, "Create func var " + this->name);
                     scope->localVars[this->name] = new Var(this->name,this->dataType);
                 }
             }
@@ -203,7 +203,25 @@ void baseAST::buildTable(Func *scope) {
                     // Duplicate function
                     info(InfoLevel::ERROR, "Duplicate global function: " + this->name);
                 }else{
-                    globalFuncs[this->name] = new Func(this->name,this->dataType);
+                    auto tmpFunc = new Func(this->name, this->dataType);
+                    globalFuncs[this->name] = tmpFunc;
+                    tmpFunc->type = this->children.at(0)->dataType; // return type of func
+                    // Build the function symbol table
+                    // Fun : FUNCTION AST_Type ID LP Fun_Var_List RP CBlock{$$=new baseAST(AST_Type::T_func,$3);delete $3;$$->Insert($2);$$->Insert($5);$$->Insert($7);}
+                    // |FUNCTION AST_Type ID LP RP CBlock{$$=new baseAST(AST_Type::T_func,$3);delete $3;$$->Insert($2);$$->Insert($6);}
+                    if(this->children.size() == 2) {
+                        // No func parameter
+                        // AST_Type CBlock
+                        this->children.at(0)->buildTable(tmpFunc);
+                        this->children.at(1)->buildTable(tmpFunc);
+                    }
+                    else if(this->children.size() == 3) {
+                        // Has func parameter
+                        // AST_Type Fun_Var_List CBlock
+                        this->children.at(0)->buildTable(tmpFunc);
+                        this->children.at(1)->buildTable(tmpFunc);
+                        this->children.at(2)->buildTable(tmpFunc);
+                    }
                 }
 
             }
@@ -213,6 +231,7 @@ void baseAST::buildTable(Func *scope) {
         case AST_Type::T_defi:
             // Definition of a specific var
             // Var : AST_Type Var_List
+//            std::cout << "defi: " << std::endl;
             this->children.at(1)->dataType = this->children.at(0)->dataType;
             this->dataType = this->children.at(0)->dataType;
 
@@ -232,7 +251,8 @@ void baseAST::buildTable(Func *scope) {
 
         case AST_Type::T_list:
             // List has many types
-            if(this->name == "Def_list"){
+
+            if(this->name == "Def_List"){
                 // Definition list
                 // Def_list : Def_list Var SEMI
                 // 每个 Var 是类似于 int a,b,c的形式
@@ -240,7 +260,7 @@ void baseAST::buildTable(Func *scope) {
                     t->buildTable(scope);
                 }
             }
-            else if(this->name == "Var_list"){
+            else if(this->name == "Var_List"){
                 // Var list
                 // Var_List : Var_List COMMA VarDec
                 for(auto &t: this->children){
@@ -248,7 +268,7 @@ void baseAST::buildTable(Func *scope) {
                     t->buildTable(scope);
                 }
             }
-            else if(this->name == "Fun_list"){
+            else if(this->name == "Fun_List"){
                 // Fun_list
                 for(auto &t: this->children){
                     t->buildTable(nullptr);
@@ -262,7 +282,7 @@ void baseAST::buildTable(Func *scope) {
                 }
 
             }
-            else if(this->name == "Stmt_list"){
+            else if(this->name == "Stmt_List"){
                 for(auto &t: this->children){
                     t->buildTable(nullptr);
                 }
@@ -298,7 +318,8 @@ void baseAST::buildTable(Func *scope) {
             this->children.at(1)->dataType = this->children.at(0)->dataType;
             this->dataType = this->children.at(0)->dataType;
             break;
-
+        case AST_Type::T_tydf:
+            break;
         case AST_Type::T_expr:
             break;
         case AST_Type::T_operator:
@@ -317,6 +338,23 @@ baseAST::baseAST(AST_Type type, std::string name) : type(type), name(std::move(n
     this->dataType=AST_DataType::DT_nonedt;
 }
 
+void printGlobalTable(){
+    std::cout <<  globalVars.size() << " Global Variables: ";
+    for(auto it=globalVars.begin();it!=globalVars.end();it++){
+        std::cout << it->first << " ";
+    }
+    std::cout << std::endl;
+    std::cout << globalFuncs.size() << " Global Functions: " << std::endl;
+    for(auto it=globalFuncs.begin();it!=globalFuncs.end();it++){
+        std::cout << it->first << " ";
+        std::cout << it->second->localVars.size() << " local Vars: ";
+        for(auto var :it->second->localVars){
+            std::cout << var.first << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
 
 
 // int main(int argc, char ** argv){

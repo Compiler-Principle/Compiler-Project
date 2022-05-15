@@ -11,6 +11,7 @@
 #include "json.hpp"
 using json_t = nlohmann::json;
 
+
 typedef enum AST_Type
 {
     T_root, // 0
@@ -150,5 +151,7 @@ public:
     ~operatorNode();
 };
 
-
+extern std::map<std::string, Var *> globalVars;
+extern std::map<std::string, Func *> globalFuncs;
+void printGlobalTable();
 #endif
