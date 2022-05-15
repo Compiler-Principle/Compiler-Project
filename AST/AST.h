@@ -13,9 +13,14 @@ typedef enum Type
     T_none,
     T_operator,
     T_var,
+    T_fvar,
     T_const,
     T_func,
-    T_defi,
+    T_defi,     
+    T_list,
+    T_tydf, 
+    T_expr,
+    T_formatstr
 } Type;
 
 typedef enum DataType
@@ -37,8 +42,10 @@ typedef union Value
 typedef enum Operator
 {
     O_noneop,
+    O_OR,
+    O_AND,
     O_OP,
-    O_AD,
+    O_ADD,
     O_EQ,
     O_LE,
     O_GE,

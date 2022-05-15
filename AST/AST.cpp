@@ -52,10 +52,11 @@ constNode::~constNode(){
     delete this->dvalue.str;
 }
 
-operatorNode::operatorNode(Operator op,DataType dataType){
+operatorNode::operatorNode(Operator op,std::string name){
     this->id=++IDAccumulate;
     this->type=Type::T_operator;
-    this->dataType=dataType;
+    // this->dataType=dataType;
+    this->name=name;
     this->childCnt=0;
 }
 
