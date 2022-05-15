@@ -147,8 +147,18 @@ void baseAST::buildTable(Func *scope) {
         case Type::T_operator:
             break;
         case Type::T_defi:
-            break;
+            // Definition of a specific var
+            // Var : Type VarDec
+            this->children.at(1)->dataType = this->children.at(0)->dataType;
+            this->dataType = this->children.at(0)->dataType;
 
+            this->children.at(1)->buildTable(scope);
+        
+            break;
+        case Type::T_root:
+            // Root only has 2 children
+            this->children.at(0)->buildTable(nullptr);
+            this->children.at(1)->buildTable(nullptr);
         default:
 
             break;
