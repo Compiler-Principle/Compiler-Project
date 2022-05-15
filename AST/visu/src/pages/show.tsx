@@ -31,9 +31,9 @@ const Page: React.FC = () => {
         symbolSize: 7,
         orient: 'vertical',
         label: {
-          position: 'left',
+          position: 'right',
           verticalAlign: 'middle',
-          align: 'right',
+          align: 'left',
           fontSize: 9
         },
 
