@@ -16,6 +16,7 @@ int main(int argc,char** argv){
     yyparse();
     head->print();
     head->buildTable(nullptr);
+    printTable();
 
     return 0;
 }

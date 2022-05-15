@@ -5,14 +5,14 @@ using namespace std;
 
 // Constructor
 baseAST::baseAST() {
-    this->id=++IDAccumulate;
+    this->id=++staticID;
     this->type=AST_Type::T_none;
     this->dataType=AST_DataType::DT_nonedt;
     this->childCnt=0;
 }
 
 baseAST::baseAST(AST_Type type, AST_DataType dataType){
-    this->id=++IDAccumulate;
+    this->id=++staticID;
     this->type=type;
     this->dataType=dataType;
     this->childCnt=0;
@@ -21,7 +21,7 @@ baseAST::baseAST(AST_Type type, AST_DataType dataType){
 
 
 varNode::varNode(const char *name, AST_DataType dataType){
-    this->id=++IDAccumulate;
+    this->id=++staticID;
     this->type=AST_Type::T_var;
     this->dataType=dataType;
     this->childCnt=0;
@@ -29,7 +29,7 @@ varNode::varNode(const char *name, AST_DataType dataType){
 
 
 constNode::constNode(int value, AST_DataType dataType){
-    this->id=++IDAccumulate;
+    this->id=++staticID;
     this->type=AST_Type::T_const;
     this->dataType=dataType;
     this->childCnt=0;
@@ -37,14 +37,14 @@ constNode::constNode(int value, AST_DataType dataType){
 }
 
 constNode::constNode(char *value, AST_DataType dataType){
-    this->id=++IDAccumulate;
+    this->id=++staticID;
     this->type=AST_Type::T_const;
     this->dataType=dataType;
     this->childCnt=0;
     this->dvalue.str=value;
 }
 constNode::constNode(float value, AST_DataType dataType){
-    this->id=++IDAccumulate;
+    this->id=++staticID;
     this->type=AST_Type::T_const;
     this->dataType=dataType;
     this->childCnt=0;
@@ -56,7 +56,7 @@ constNode::~constNode(){
 }
 
 operatorNode::operatorNode(AST_Operator op, std::string name){
-    this->id=++IDAccumulate;
+    this->id=++staticID;
     this->type=AST_Type::T_operator;
     this->op=op;
     // this->dataType=dataType;
@@ -182,7 +182,7 @@ baseAST* fakeTree(){
     return ast;
 }
 
-int baseAST::IDAccumulate = 0;
+int baseAST::staticID = 0;
 
 void baseAST::buildTable(Func *scope) {
     // Traverse among the tree to build the symbol table
@@ -352,12 +352,12 @@ void baseAST::buildTable(Func *scope) {
 }
 
 baseAST::baseAST(AST_Type type, std::string name) : type(type), name(std::move(name)) {
-    this->id=++IDAccumulate;
+    this->id=++staticID;
     this->childCnt=0;
     this->dataType=AST_DataType::DT_nonedt;
 }
 
-void printGlobalTable(){
+void printTable(){
     std::cout <<  globalVars.size() << " Global Variables: ";
     for(auto it=globalVars.begin();it!=globalVars.end();it++){
         std::cout << it->first << " ";

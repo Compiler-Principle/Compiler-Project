@@ -107,7 +107,7 @@ public:
 class baseAST{
 public:
 
-    static int IDAccumulate;
+    static int staticID;
     unsigned id;    //唯一id标识
     std::string name; // 名称，用于存储和传递
     AST_Type type; //节点类型
@@ -152,5 +152,5 @@ public:
 
 extern std::map<std::string, Var *> globalVars;
 extern std::map<std::string, Func *> globalFuncs;
-void printGlobalTable();
+void printTable();
 #endif
