@@ -86,7 +86,7 @@ AST_Type : TYPEINT{$$=new baseAST(AST_Type::T_tydf,"int");$$->dataType=DT_intege
      ;
 
 
-CBlock : LC Def_list Stmt_list RC{$$=new baseAST(AST_Type::T_none,"CBlock");$$->Insert($2);$$->Insert($3);}
+CBlock : LC Def_list Stmt_list RC{$$=new baseAST(AST_Type::T_block,"CBlock");$$->Insert($2);$$->Insert($3);}
        ;
 
 Stmt_list : Stmt_list Stmt{$$=$1;$$->Insert($2);}
