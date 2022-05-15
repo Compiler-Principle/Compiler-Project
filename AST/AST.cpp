@@ -153,7 +153,6 @@ void baseAST::print() {
     outfile.open("./AST/visu/src/tree.json");
     std::cout << "printing tree" << std::endl;
     outfile<<genJson(this).dump(2);
-    std::cout << "Hi~~~" << std::endl;
     outfile.close();
 }
 
@@ -224,14 +223,22 @@ void baseAST::buildTable(Func *scope) {
             // Root only has 2 children
             this->children.at(0)->buildTable(nullptr);
             this->children.at(1)->buildTable(nullptr);
+            break;
+        case AST_Type::T_block:
+            // Block : AST_Type AST_Type
+            this->children.at(0)->buildTable(scope);
+            this->children.at(1)->buildTable(scope);
+            break;
+
         case AST_Type::T_list:
             // List has many types
             if(this->name == "Def_list"){
                 // Definition list
                 // Def_list : Def_list Var SEMI
                 // 每个 Var 是类似于 int a,b,c的形式
-                this->children.at(0)->buildTable(scope);
-                this->children.at(1)->buildTable(scope);
+                for(auto &t: this->children){
+                    t->buildTable(scope);
+                }
             }
             else if(this->name == "Var_list"){
                 // Var list
@@ -243,9 +250,57 @@ void baseAST::buildTable(Func *scope) {
             }
             else if(this->name == "Fun_list"){
                 // Fun_list
+                for(auto &t: this->children){
+                    t->buildTable(nullptr);
+                }
+            }
+            else if(this->name == "Fun_Var_List"){
+                // Fun_Var_List
+                // Fun_Var_List: Fun_Var_List COMMA
+                for(auto &t: this->children){
+                    t->buildTable(scope);
+                }
 
             }
+            else if(this->name == "Stmt_list"){
+                for(auto &t: this->children){
+                    t->buildTable(nullptr);
+                }
+            }
 
+            else if(this->name == "Args"){
+                for(auto &t: this->children){
+                    t->buildTable(scope);
+                }
+            }
+
+            break;
+
+        case AST_Type::T_fvar:
+            // function var
+            // Fun_Var:AST_Type VarDec
+            if(scope == nullptr){
+                info(InfoLevel::ERROR, "FUNCTION IS NULLPTR!");
+                return;
+            }
+            else {
+                // Local var
+                if(scope->localVars.find(this->name) != scope->localVars.end()) {
+                    // Duplicate variable
+                    info(InfoLevel::ERROR, "Duplicate local variable with function var " + this->name);
+                    return;
+                }else {
+                    // add the function vars to local vars
+                    scope->localVars[this->name] = new Var(this->name,this->dataType);
+                }
+            }
+
+            this->children.at(1)->dataType = this->children.at(0)->dataType;
+            this->dataType = this->children.at(0)->dataType;
+            break;
+
+        case AST_Type::T_expr:
+            break;
         case AST_Type::T_operator:
             break;
         default:
