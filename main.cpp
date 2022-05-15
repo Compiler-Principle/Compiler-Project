@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include "AST/AST.h"
 baseAST *head;
+std::map<std::string, Var *> globalVars;
+std::map<std::string, Func *> globalFuncs;
 extern FILE* yyin;
 extern int yyparse ();
 int main(int argc,char** argv){
@@ -13,5 +15,7 @@ int main(int argc,char** argv){
     yyin=f;
     yyparse();
     head->print();
+    head->buildTable(nullptr);
+
     return 0;
 }
