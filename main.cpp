@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include "AST/AST.h"
+#include "gen/gen.h"
 baseAST *head;
 extern FILE* yyin;
 extern int yyparse ();
@@ -12,6 +13,8 @@ int main(int argc,char** argv){
     }
     yyin=f;
     yyparse();
-    head->print();
+    // head->print();
+    genCode(head);
+    genBC();
     return 0;
 }
