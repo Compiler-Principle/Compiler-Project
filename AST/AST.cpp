@@ -83,13 +83,58 @@ const char *types[] = {"T_root",
                              "T_value",
                              "T_block",
 }; //
+const char *datatypes[]={
+    "DT_nonedt",
+    "DT_void",
+    "DT_integer",
+    "DT_float",
+    "DT_string",
+    "DT_function",
+};
+
 json_t genJson(baseAST *ast){
     json_t treeRoot;
     treeRoot["id"]=ast->id;
     treeRoot["type"]=ast->type;
     treeRoot["dataType"]=ast->dataType;
     char n[100];
-    sprintf(n, "id:{%d} type:%s dataType:{%d}", ast->id, types[ast->type], ast->dataType);
+    switch (ast->type)
+    {
+    case 0: 
+        sprintf(n, "%d: name:%s", ast->id,  ast->name.c_str(),types[ast->type]);
+        break;
+    case 1: 
+        sprintf(n, "%d: name:%s", ast->id,  ast->name.c_str(),types[ast->type]);
+        /* code */
+        break;
+    case 2: 
+        sprintf(n, "op!! %d: name:%s ", ast->id,  ast->name.c_str(),types[ast->type]);
+        /* code */
+        break;
+    case 3:
+        sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
+        /* code */
+        break;
+    case 4: 
+        sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
+        /* code */
+        break;
+    case 5: 
+        sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
+        /* code */
+        break;
+    case 6: 
+        sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
+        /* code */
+        break;
+    default:
+        sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
+        break;
+    }
+    // if(ast->dataType==0)    
+    //     sprintf(n, "id:{%d} name:%s type:%s", ast->id,  ast->name.c_str(),types[ast->type]);
+    // else
+    //     sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
     std::string name(n);
     treeRoot["name"] = name;
     treeRoot["childCnt"]=ast->childCnt;
@@ -269,6 +314,7 @@ void baseAST::buildTable(Func *scope) {
 baseAST::baseAST(AST_Type type, std::string name) : type(type), name(std::move(name)) {
     this->id=++IDAccumulate;
     this->childCnt=0;
+    this->dataType=AST_DataType::DT_nonedt;
 }
 
 
