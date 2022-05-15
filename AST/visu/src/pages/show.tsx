@@ -48,10 +48,10 @@ const Page: React.FC = () => {
         emphasis: {
           focus: 'descendant'
         },
-
+        initialTreeDepth: -1,
         expandAndCollapse: true,
-        animationDuration: 550,
-        animationDurationUpdate: 750
+        animationDuration: 200,
+        animationDurationUpdate: 500
       }
     ]
   };
