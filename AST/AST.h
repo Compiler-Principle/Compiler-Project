@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <iostream>
+#include <cstring>
+#include <fstream>
 #include "../info/info.h"
 #include "json.hpp"
 using json_t = nlohmann::json;
@@ -71,7 +74,6 @@ typedef enum AST_Operator
     // O_ddi,
     // O_mod,
 } Operator;
-
 
 class Var {
 public:

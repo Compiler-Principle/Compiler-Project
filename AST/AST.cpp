@@ -1,9 +1,5 @@
 #include "AST.h"
-#include <iostream>
-#include <utility>
-#include <vector>
-#include <cstring>
-#include <fstream>
+
 
 //using namespace std;
 
@@ -70,10 +66,13 @@ json_t genJson(baseAST *ast){
     treeRoot["id"]=ast->id;
     treeRoot["type"]=ast->type;
     treeRoot["dataType"]=ast->dataType;
-    treeRoot["name"] = "11";
+    char n[100];
+    sprintf(n, "id:{%d} type:{%d} dataType:{%d}", ast->id, ast->type, ast->dataType);
+    std::string name(n);
+    treeRoot["name"] = name;
     treeRoot["childCnt"]=ast->childCnt;
     json_t c = json_t::array();
-    for(int i=0;i<ast->childCnt;i++){
+    for(int i=0;i<ast->children.size();i++){
         c.push_back(genJson(ast->children[i]));
     }
     treeRoot["children"]=c;
@@ -83,10 +82,9 @@ json_t genJson(baseAST *ast){
 
 
 void baseAST::print() {
-    int a = 0, &i = a;
-
     std::ofstream outfile;
-    outfile.open("../visu/src/tree.json");
+    outfile.open("./AST/visu/src/tree.json");
+    std::cout << "printing tree" << std::endl;
     outfile<<genJson(this).dump(2);
     outfile.close();
 }
