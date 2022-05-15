@@ -13,20 +13,21 @@ using json_t = nlohmann::json;
 
 typedef enum AST_Type
 {
-    T_root,
-    T_none,
-    T_operator,
-    T_var,
-    T_fvar,
-    T_const,
-    T_func,
-    T_defi,     
-    T_list,
-    T_tydf, 
-    T_expr,
-    T_formatstr,
-    T_value
-} AST_Type;
+    T_root, // 0
+    T_none, // 1
+    T_operator, // 2
+    T_var, //3
+    T_fvar, //4
+    T_const, //5
+    T_func, //6
+    T_defi, //7
+    T_list, //8
+    T_tydf,  //9
+    T_expr, //10
+    T_formatstr, //11
+    T_value, //12
+    T_block, //13
+} Type;
 
 typedef enum AST_DataType
 {
