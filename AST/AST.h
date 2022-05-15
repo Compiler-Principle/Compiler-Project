@@ -8,7 +8,7 @@
 #include "json.hpp"
 using json_t = nlohmann::json;
 
-typedef enum Type
+typedef enum AST_Type
 {
     T_root,
     T_none,
@@ -24,7 +24,7 @@ typedef enum Type
     T_formatstr
 } Type;
 
-typedef enum DataType
+typedef enum AST_DataType
 {
     DT_nonedt,
     DT_void,
@@ -34,13 +34,13 @@ typedef enum DataType
     DT_function,
 } DataType;
 
-typedef union Value
+typedef union AST_Value
 {
     int integer;
     char *str;
 } Value;
 
-typedef enum Operator
+typedef enum AST_Operator
 {
     O_noneop,
     O_OR,
@@ -64,8 +64,8 @@ typedef enum Operator
 class Var {
 public:
     std::string name;
-    DataType type;
-    Var(std::string name, DataType type) : name(std::move(name)), type(type) {}
+    AST_DataType type;
+    Var(std::string name, AST_DataType type) : name(std::move(name)), type(type) {}
 
     ~Var() {}
 
@@ -75,10 +75,10 @@ public:
 class Func {
 public:
     std::string name;
-    DataType type;
+    AST_DataType type;
     std::map<std::string, Var *> localVars; // local variables in the specific function
 
-    Func(std::string name, DataType rtype): name(std::move(name)), type(rtype) {}
+    Func(std::string name, AST_DataType rtype): name(std::move(name)), type(rtype) {}
 
     ~Func(){}
 };
@@ -90,14 +90,14 @@ public:
     static int IDAccumulate;
     unsigned id;    //唯一id标识
     std::string name; // 名称，用于存储和传递
-    Type type; //节点类型
-    DataType dataType;   //节点数据类型
+    AST_Type type; //节点类型
+    AST_DataType dataType;   //节点数据类型
     unsigned childCnt;
     std::vector<baseAST *> children;
 
     baseAST();
-    baseAST(Type type,DataType dataType);
-    baseAST(Type type, std::string name);
+    baseAST(AST_Type type, AST_DataType dataType);
+    baseAST(AST_Type type, std::string name);
     // ~baseAST();
     void Insert(baseAST *);
     void print(void);
@@ -107,22 +107,24 @@ public:
 class varNode : public baseAST{
 public:
     std::string name; /* only for var */
-    varNode(const char *name,DataType dataType);
+    varNode(const char *name, AST_DataType dataType);
     ~varNode();
 };
 
 class constNode : public baseAST{
 public:
-    Value dvalue; /* only for const */
-    constNode(int value,DataType dataType);
-    constNode(char *value,DataType dataType);
+    AST_Value dvalue; /* only for const */
+    constNode(int value, AST_DataType dataType);
+    constNode(char *value, AST_DataType dataType);
     ~constNode();
 };
 
 class operatorNode : public baseAST{
 public:
-    Operator op;  /* only for operator */
-    operatorNode(Operator op,DataType dataType);
+    operatorNode(AST_Operator op, std::string name);
+
+    AST_Operator op;  /* only for operator */
+    operatorNode(AST_Operator op, AST_DataType dataType);
     ~operatorNode();
 };
 

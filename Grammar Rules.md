@@ -38,7 +38,7 @@
 // CBLOCK就是NJU那份C定义里的**CompSt**
     CBLOCK -> LC Def_List Stmt_List RC
 
-    Type -> TYPEINT | TYPEFLOAT | TYPEVOID
+    AST_Type -> TYPEINT | TYPEFLOAT | TYPEVOID
 
 ### Declarations
 
@@ -50,13 +50,13 @@
 
 //TODO 这里可能有reduce-reduce conflict
 
-    FunDec -> FUNCTION Type ID LP Var_List RP | FUNCTION Type ID LP RP
+    FunDec -> FUNCTION AST_Type ID LP Var_List RP | FUNCTION AST_Type ID LP RP
 
 // 变量序列，由多个变量组成，诸如**int a,float b[10]**
 
     Var_List -> Var COMMA Var_List | Var
 
-    Var -> Type VarDec
+    Var -> AST_Type VarDec
 
 ### Statements
 

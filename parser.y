@@ -36,11 +36,11 @@
 %left LP RP LB RB DOT
 
 %type <type_ast>    Program Def_list Fun_list Var Var_List Fun Fun_Var_List Fun_Var VarDec
-%type <type_ast> Type CBlock Stmt_list Stmt IF_Stmt If_Else_Stmt While_Stmt Input_Exp Output_Exp Exp Args
+%type <type_ast> AST_Type CBlock Stmt_list Stmt IF_Stmt If_Else_Stmt While_Stmt Input_Exp Output_Exp Exp Args
 
 %%
 Program : Def_list Fun_list {
-    $$ = new baseAST();
+    $$ = new baseAST(AST_Type::T_root, "Program");
     head = $$;
     head->Insert($1);
     head->Insert($2);
@@ -48,55 +48,55 @@ Program : Def_list Fun_list {
         ;
 
 Def_list : Def_list Var SEMI{$$=$1;$$->Insert($2);}
-         |{$$=new baseAST(Type::T_list,"Def_list");}
+         |{$$=new baseAST(AST_Type::T_list,"Def_list");}
          ;
 
-Var : Type Var_List{$$=new baseAST(Type::T_defi,"Def");$$->Insert($1);$$->Insert($2);}
+Var : AST_Type Var_List{$$=new baseAST(AST_Type::T_defi,"Def");$$->Insert($1);$$->Insert($2);}
     ;
 
 Var_List : Var_List COMMA VarDec {$$=$1;$$->Insert($3);}
-         | VarDec {$$=new baseAST(Type::T_list, "Var_List"); $$->Insert($1);}
+         | VarDec {$$=new baseAST(AST_Type::T_list, "Var_List"); $$->Insert($1);}
          ;
 
 
 
 Fun_list : Fun_list Fun{$$=$1;$$->Insert($2);}
-         |{$$=new baseAST(Type::T_list,"Fun_list");}
+         |{$$=new baseAST(AST_Type::T_list,"Fun_list");}
          ;
 
-Fun : FUNCTION Type ID LP Fun_Var_List RP CBlock{$$=new baseAST(Type::T_func,$3);delete $3;$$->Insert($2);$$->Insert($5);$$->Insert($7);}
-    |FUNCTION Type ID LP RP CBlock{$$=new baseAST(Type::T_func,$3);delete $3;$$->Insert($2);$$->Insert($6);}
+Fun : FUNCTION AST_Type ID LP Fun_Var_List RP CBlock{$$=new baseAST(AST_Type::T_func,$3);delete $3;$$->Insert($2);$$->Insert($5);$$->Insert($7);}
+    |FUNCTION AST_Type ID LP RP CBlock{$$=new baseAST(AST_Type::T_func,$3);delete $3;$$->Insert($2);$$->Insert($6);}
     ;
 
 
 Fun_Var_List: Fun_Var_List COMMA Fun_Var{$$=$1;$$->Insert($3);}
-        |Fun_Var{$$=new baseAST(Type::T_list,"Fun_Var_List");$$->Insert($1);}
+        |Fun_Var{$$=new baseAST(AST_Type::T_list,"Fun_Var_List");$$->Insert($1);}
         ;
 
-Fun_Var:Type VarDec{$$=new baseAST(Type::T_fvar,"Fun_Var");$$->Insert($1);$$->Insert($2);}
+Fun_Var:AST_Type VarDec{$$=new baseAST(AST_Type::T_fvar,"Fun_Var");$$->Insert($1);$$->Insert($2);}
         ;
 
-VarDec : ID{$$=new baseAST(Type::T_var,$1);delete $1;}
-       | VarDec LB INT RB {$$=$1;$$->Insert(new constNode($3,DataType::DT_integer));}
+VarDec : ID{$$=new baseAST(AST_Type::T_var,$1);delete $1;}
+       | VarDec LB INT RB {$$=$1;$$->Insert(new constNode($3,AST_DataType::DT_integer));}
        ;
 
-Type : TYPEINT{$$=new baseAST(Type::T_tydf,"int");$$->dataType=DT_integer;}
-     | TYPEFLOAT{$$=new baseAST(Type::T_tydf,"float");$$->dataType=DT_float;}
-     | TYPEVOID{$$=new baseAST(Type::T_tydf,"void");$$->dataType=DT_void;}
+AST_Type : TYPEINT{$$=new baseAST(AST_Type::T_tydf,"int");$$->dataType=DT_integer;}
+     | TYPEFLOAT{$$=new baseAST(AST_Type::T_tydf,"float");$$->dataType=DT_float;}
+     | TYPEVOID{$$=new baseAST(AST_Type::T_tydf,"void");$$->dataType=DT_void;}
      ;
 
 
-CBlock : LC Def_list Stmt_list RC{$$=new baseAST(Type::T_none,"CBlock");$$->Insert($2);$$->Insert($3);}
+CBlock : LC Def_list Stmt_list RC{$$=new baseAST(AST_Type::T_none,"CBlock");$$->Insert($2);$$->Insert($3);}
        ;
 
 Stmt_list : Stmt_list Stmt{$$=$1;$$->Insert($2);}
-          |Stmt{$$=new baseAST(Type::T_list,"Stmt_list");$$->Insert($1);}
+          |Stmt{$$=new baseAST(AST_Type::T_list,"Stmt_list");$$->Insert($1);}
           ;
 
 Stmt : Exp SEMI{$$=$1;}
      | CBlock{$$=$1;}
-     | RETURN SEMI{$$=new baseAST(Type::T_expr,"return");}
-     | RETURN Exp SEMI{$$=new baseAST(Type::T_expr,"return");$$->Insert($2);}
+     | RETURN SEMI{$$=new baseAST(AST_Type::T_expr,"return");}
+     | RETURN Exp SEMI{$$=new baseAST(AST_Type::T_expr,"return");$$->Insert($2);}
      | IF_Stmt{$$=$1;}
      | If_Else_Stmt{$$=$1;}
      | While_Stmt{$$=$1;}
@@ -104,35 +104,35 @@ Stmt : Exp SEMI{$$=$1;}
      | Output_Exp SEMI {$$=$1;}
      ;
 
-IF_Stmt : IF LP Exp RP CBlock{$$=new baseAST(Type::T_expr,"IF_Stmt");$$->Insert($3);$$->Insert($5);}
+IF_Stmt : IF LP Exp RP CBlock{$$=new baseAST(AST_Type::T_expr,"IF_Stmt");$$->Insert($3);$$->Insert($5);}
         ;
 
-If_Else_Stmt : IF LP Exp RP CBlock ELSE CBlock {$$=new baseAST(Type::T_expr,"If_Else_Stmt");$$->Insert($3);$$->Insert($5);$$->Insert($7);}
+If_Else_Stmt : IF LP Exp RP CBlock ELSE CBlock {$$=new baseAST(AST_Type::T_expr,"If_Else_Stmt");$$->Insert($3);$$->Insert($5);$$->Insert($7);}
              ;
 
-While_Stmt : WHILE LP Exp RP CBlock{$$=new baseAST(Type::T_expr,"While_Stmt");$$->Insert($3);$$->Insert($5);}
+While_Stmt : WHILE LP Exp RP CBlock{$$=new baseAST(AST_Type::T_expr,"While_Stmt");$$->Insert($3);$$->Insert($5);}
            ;
 
-Input_Exp : INPUT LP FormatStr COMMA Args RP{$$=new baseAST(Type::T_expr,"Input_Exp");temp=new baseAST(Type::T_formatstr,$3);$$->Insert(temp);$$->Insert($5);}
+Input_Exp : INPUT LP FormatStr COMMA Args RP{$$=new baseAST(AST_Type::T_expr,"Input_Exp");temp=new baseAST(AST_Type::T_formatstr,$3);$$->Insert(temp);$$->Insert($5);}
           ;
 
-Output_Exp : OUTPUT LP FormatStr COMMA Args RP {$$=new baseAST(Type::T_expr,"Output_Exp");temp=new baseAST(Type::T_formatstr,$3);$$->Insert(temp);$$->Insert($5);}
-           | OUTPUT LP FormatStr RP {$$=new baseAST(Type::T_expr,"Output_Exp");temp=new baseAST(Type::T_formatstr,$3);$$->Insert(temp);}
+Output_Exp : OUTPUT LP FormatStr COMMA Args RP {$$=new baseAST(AST_Type::T_expr,"Output_Exp");temp=new baseAST(AST_Type::T_formatstr,$3);$$->Insert(temp);$$->Insert($5);}
+           | OUTPUT LP FormatStr RP {$$=new baseAST(AST_Type::T_expr,"Output_Exp");temp=new baseAST(AST_Type::T_formatstr,$3);$$->Insert(temp);}
            ;
 
-Exp : Exp ASSIGN Exp{$$=new baseAST(Type::T_expr,"ASSIGN");$$->Insert($1);$$->Insert($3);}
-    | Exp AND Exp{$$=new operatorNode(Operator::O_AND,"AND");$$->Insert($1);$$->Insert($3);}
-    | Exp OR Exp{$$=new operatorNode(Operator::O_OR,"OR");$$->Insert($1);$$->Insert($3);}
-    | Exp ADD Exp{$$=new operatorNode(Operator::O_ADD,"ADD");$$->Insert($1);$$->Insert($3);}
-    | Exp MINUS Exp{$$=new operatorNode(Operator::O_MINUS,"MINUS");$$->Insert($1);$$->Insert($3);}
-    | Exp MULT Exp{$$=new operatorNode(Operator::O_MULT,"MULT");$$->Insert($1);$$->Insert($3);}
-    | Exp DIV Exp{$$=new operatorNode(Operator::O_DIV,"DIV");$$->Insert($1);$$->Insert($3);}
-    | Exp EQUAL Exp{$$=new operatorNode(Operator::O_EQUAL,"EQUAL");$$->Insert($1);$$->Insert($3);}
-    | Exp LE Exp{$$=new operatorNode(Operator::O_LE,"LE");$$->Insert($1);$$->Insert($3);}
-    | Exp GE Exp{$$=new operatorNode(Operator::O_GE,"GE");$$->Insert($1);$$->Insert($3);}
-    | Exp NE Exp{$$=new operatorNode(Operator::O_NE,"NE");$$->Insert($1);$$->Insert($3);}
-    | Exp LESS Exp{$$=new operatorNode(Operator::O_LESS,"LESS");$$->Insert($1);$$->Insert($3);}
-    | Exp GREATER Exp{$$=new operatorNode(Operator::O_GREATER,"GREATER");$$->Insert($1);$$->Insert($3);}
+Exp : Exp ASSIGN Exp{$$=new baseAST(AST_Type::T_expr,"ASSIGN");$$->Insert($1);$$->Insert($3);}
+    | Exp AND Exp{$$=new operatorNode(AST_Operator::O_AND,"AND");$$->Insert($1);$$->Insert($3);}
+    | Exp OR Exp{$$=new operatorNode(AST_Operator::O_OR,"OR");$$->Insert($1);$$->Insert($3);}
+    | Exp ADD Exp{$$=new operatorNode(AST_Operator::O_ADD,"ADD");$$->Insert($1);$$->Insert($3);}
+    | Exp MINUS Exp{$$=new operatorNode(AST_Operator::O_MINUS,"MINUS");$$->Insert($1);$$->Insert($3);}
+    | Exp MULT Exp{$$=new operatorNode(AST_Operator::O_MULT,"MULT");$$->Insert($1);$$->Insert($3);}
+    | Exp DIV Exp{$$=new operatorNode(AST_Operator::O_DIV,"DIV");$$->Insert($1);$$->Insert($3);}
+    | Exp EQUAL Exp{$$=new operatorNode(AST_Operator::O_EQUAL,"EQUAL");$$->Insert($1);$$->Insert($3);}
+    | Exp LE Exp{$$=new operatorNode(AST_Operator::O_LE,"LE");$$->Insert($1);$$->Insert($3);}
+    | Exp GE Exp{$$=new operatorNode(AST_Operator::O_GE,"GE");$$->Insert($1);$$->Insert($3);}
+    | Exp NE Exp{$$=new operatorNode(AST_Operator::O_NE,"NE");$$->Insert($1);$$->Insert($3);}
+    | Exp LESS Exp{$$=new operatorNode(AST_Operator::O_LESS,"LESS");$$->Insert($1);$$->Insert($3);}
+    | Exp GREATER Exp{$$=new operatorNode(AST_Operator::O_GREATER,"GREATER");$$->Insert($1);$$->Insert($3);}
     | LOGICAND Exp
     | LP Exp RP
     | MINUS Exp

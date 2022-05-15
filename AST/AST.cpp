@@ -10,12 +10,12 @@
 // Constructor
 baseAST::baseAST() {
     this->id=++IDAccumulate;
-    this->type=Type::T_none;
-    this->dataType=DataType::DT_nonedt;
+    this->type=AST_Type::T_none;
+    this->dataType=AST_DataType::DT_nonedt;
     this->childCnt=0;
 }
 
-baseAST::baseAST(Type type,DataType dataType){
+baseAST::baseAST(AST_Type type, AST_DataType dataType){
     this->id=++IDAccumulate;
     this->type=type;
     this->dataType=dataType;
@@ -24,25 +24,25 @@ baseAST::baseAST(Type type,DataType dataType){
 
 
 
-varNode::varNode(const char *name,DataType dataType){
+varNode::varNode(const char *name, AST_DataType dataType){
     this->id=++IDAccumulate;
-    this->type=Type::T_var;
+    this->type=AST_Type::T_var;
     this->dataType=dataType;
     this->childCnt=0;
 }
 
 
-constNode::constNode(int value,DataType dataType){
+constNode::constNode(int value, AST_DataType dataType){
     this->id=++IDAccumulate;
-    this->type=Type::T_const;
+    this->type=AST_Type::T_const;
     this->dataType=dataType;
     this->childCnt=0;
     this->dvalue.integer=value;
 }
 
-constNode::constNode(char *value,DataType dataType){
+constNode::constNode(char *value, AST_DataType dataType){
     this->id=++IDAccumulate;
-    this->type=Type::T_const;
+    this->type=AST_Type::T_const;
     this->dataType=dataType;
     this->childCnt=0;
     this->dvalue.str=value;
@@ -52,9 +52,9 @@ constNode::~constNode(){
     delete this->dvalue.str;
 }
 
-operatorNode::operatorNode(Operator op,std::string name){
+operatorNode::operatorNode(AST_Operator op, std::string name){
     this->id=++IDAccumulate;
-    this->type=Type::T_operator;
+    this->type=AST_Type::T_operator;
     // this->dataType=dataType;
     this->name=name;
     this->childCnt=0;
@@ -94,8 +94,8 @@ void baseAST::print() {
 baseAST* fakeTree(){
     auto ast = new baseAST();
     ast->childCnt=2;
-    ast->children.push_back(new varNode("a",DataType::DT_integer));
-    ast->children.push_back(new constNode(1,DataType::DT_integer));
+    ast->children.push_back(new varNode("a", AST_DataType::DT_integer));
+    ast->children.push_back(new constNode(1, AST_DataType::DT_integer));
     return ast;
 }
 
@@ -106,7 +106,7 @@ std::map<std::string, Func *> globalFuncs;
 void baseAST::buildTable(Func *scope) {
     // Traverse among the tree to build the symbol table
     switch (this->type) {
-        case Type::T_var:
+        case AST_Type::T_var:
             // Insert the variable into the functino symbol table
             if(scope == nullptr){
                 // Global var
@@ -127,7 +127,7 @@ void baseAST::buildTable(Func *scope) {
                 }
             }
             break;
-        case Type::T_func:
+        case AST_Type::T_func:
             // Insert the constant into the globalFuncs symbol table
             if(scope != nullptr){
                 info(InfoLevel::ERROR, "CLOSURE IS INVALID!");
@@ -144,18 +144,18 @@ void baseAST::buildTable(Func *scope) {
             }
 
             break;
-        case Type::T_operator:
+        case AST_Type::T_operator:
             break;
-        case Type::T_defi:
+        case AST_Type::T_defi:
             // Definition of a specific var
-            // Var : Type VarDec
+            // Var : AST_Type VarDec
             this->children.at(1)->dataType = this->children.at(0)->dataType;
             this->dataType = this->children.at(0)->dataType;
 
             this->children.at(1)->buildTable(scope);
         
             break;
-        case Type::T_root:
+        case AST_Type::T_root:
             // Root only has 2 children
             this->children.at(0)->buildTable(nullptr);
             this->children.at(1)->buildTable(nullptr);
@@ -167,7 +167,7 @@ void baseAST::buildTable(Func *scope) {
 
 }
 
-baseAST::baseAST(Type type, std::string name) : type(type), name(std::move(name)) {
+baseAST::baseAST(AST_Type type, std::string name) : type(type), name(std::move(name)) {
     this->id=++IDAccumulate;
     this->childCnt=0;
 }
