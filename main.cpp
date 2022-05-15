@@ -1,14 +1,20 @@
 #include<stdio.h>
+#include "AST/AST.h"
+#include "gen/gen.h"
+baseAST *head;
 extern FILE* yyin;
 extern int yyparse ();
 int main(int argc,char** argv){
     if(argc<=1) return 1;
     FILE* f=fopen(argv[1],"r");
     if(!f){
-            perror(argv[1]);
-            return 1;        
+        perror(argv[1]);
+        return 1;
     }
     yyin=f;
     yyparse();
+    // head->print();
+    genCode(head);
+    genBC();
     return 0;
 }

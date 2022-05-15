@@ -9,7 +9,7 @@ function void qsort(int l,int r){
 
     ll = l;
     rr = r;
-    pivoit = data[l];
+    pivot = data[l];
 
     if(l>r){
         return;
@@ -38,9 +38,9 @@ function int main(){
     int i;
     int n;
     i = 1;
-    cin("%d",&n);
+    /*cin("%d",&n);*/
     while(i<=n){
-        cin("%d",&data[i]);
+        /*cin("%d",&data[i]);*/
         i=i+1;
     }
     qsort(1,n);
