@@ -51,6 +51,7 @@ constNode::~constNode(){
 operatorNode::operatorNode(AST_Operator op, std::string name){
     this->id=++IDAccumulate;
     this->type=AST_Type::T_operator;
+    this->op=op;
     // this->dataType=dataType;
     this->name=name;
     this->childCnt=0;

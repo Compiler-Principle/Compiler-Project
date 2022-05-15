@@ -135,10 +135,10 @@ public:
 
 class operatorNode : public baseAST{
 public:
-    operatorNode(AST_Operator op, std::string name);
 
     AST_Operator op;  /* only for operator */
     operatorNode(AST_Operator op, AST_DataType dataType);
+    operatorNode(AST_Operator op, std::string name);
     ~operatorNode();
 };
 
