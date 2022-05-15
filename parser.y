@@ -35,11 +35,11 @@
 %left LOGICAND
 %left LP RP LB RB DOT
 
-%type <type_ast>    Program Def_list Fun_list Var Var_List Fun Fun_Var_List Fun_Var VarDec
-%type <type_ast>    AST_Type CBlock Stmt_list Stmt IF_Stmt If_Else_Stmt While_Stmt Input_Exp Output_Exp Exp Args
+%type <type_ast>    Program Def_List Fun_List Var Var_List Fun Fun_Var_List Fun_Var VarDec
+%type <type_ast>    AST_Type CBlock Stmt_List Stmt IF_Stmt If_Else_Stmt While_Stmt Input_Exp Output_Exp Exp Args
 
 %%
-Program : Def_list Fun_list {
+Program : Def_List Fun_List {
     $$ = new baseAST(AST_Type::T_root, "Program");
     head = $$;
     head->Insert($1);
@@ -47,8 +47,8 @@ Program : Def_list Fun_list {
 }
         ;
 
-Def_list : Def_list Var SEMI{$$=$1;$$->Insert($2);}
-         |{$$=new baseAST(AST_Type::T_list,"Def_list");}
+Def_List : Def_List Var SEMI{$$=$1;$$->Insert($2);}
+         |{$$=new baseAST(AST_Type::T_list,"Def_List");}
          ;
 
 Var : AST_Type Var_List{$$=new baseAST(AST_Type::T_defi,"Def");$$->Insert($1);$$->Insert($2);}
@@ -60,8 +60,8 @@ Var_List : Var_List COMMA VarDec {$$=$1;$$->Insert($3);}
 
 
 
-Fun_list : Fun_list Fun{$$=$1;$$->Insert($2);}
-         |{$$=new baseAST(AST_Type::T_list,"Fun_list");}
+Fun_List : Fun_List Fun{$$=$1;$$->Insert($2);}
+         |{$$=new baseAST(AST_Type::T_list,"Fun_List");}
          ;
 
 Fun : FUNCTION AST_Type ID LP Fun_Var_List RP CBlock{$$=new baseAST(AST_Type::T_func,$3);delete $3;$$->Insert($2);$$->Insert($5);$$->Insert($7);}
@@ -86,11 +86,11 @@ AST_Type : TYPEINT{$$=new baseAST(AST_Type::T_tydf,"int");$$->dataType=DT_intege
      ;
 
 
-CBlock : LC Def_list Stmt_list RC{$$=new baseAST(AST_Type::T_block,"CBlock");$$->Insert($2);$$->Insert($3);}
+CBlock : LC Def_List Stmt_List RC{$$=new baseAST(AST_Type::T_block,"CBlock");$$->Insert($2);$$->Insert($3);}
        ;
 
-Stmt_list : Stmt_list Stmt{$$=$1;$$->Insert($2);}
-          |Stmt{$$=new baseAST(AST_Type::T_list,"Stmt_list");$$->Insert($1);}
+Stmt_List : Stmt_List Stmt{$$=$1;$$->Insert($2);}
+          |Stmt{$$=new baseAST(AST_Type::T_list,"Stmt_List");$$->Insert($1);}
           ;
 
 Stmt : Exp SEMI{$$=$1;}
