@@ -1,6 +1,5 @@
 #include "AST.h"
 
-
 // Constructor
 baseAST::baseAST() {
     this->id=++staticID;
@@ -15,7 +14,6 @@ baseAST::baseAST(AST_Type type, AST_DataType dataType){
     this->dataType=dataType;
     this->childCnt=0;
 }
-
 
 
 varNode::varNode(const char *name, AST_DataType dataType){
@@ -301,7 +299,7 @@ void baseAST::buildTable(Func *scope) {
             }
             else if(this->name == "Stmt_List"){
                 for(auto &t: this->children){
-                    t->buildTable(nullptr);
+                    t->buildTable(scope);
                 }
             }
 
@@ -498,7 +496,7 @@ void printTable(){
     for(auto it=globalFuncs.begin();it!=globalFuncs.end();it++){
         std::cout << it->first << " ";
         std::cout << it->second->localVars.size() << " local Vars: ";
-        for(auto var :it->second->localVars){
+        for(auto &var :it->second->localVars){
             std::cout << var.first << " ";
         }
         std::cout << std::endl;
