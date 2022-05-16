@@ -2,6 +2,7 @@
 #define COMPILER_PROJECT_INFO_H
 #include <string>
 #include <iostream>
+#include <string.h>
 enum InfoLevel {
     INFO,
     WARNING,
