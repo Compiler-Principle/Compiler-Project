@@ -142,8 +142,8 @@ Exp : Exp ASSIGN Exp{$$=new baseAST(AST_Type::T_expr,"ASSIGN");$$->Insert($1);$$
     | Exp LB Exp RB{$$=$1;$$->Insert($3);}
     | Exp DOT Exp{$$=$1;$$->Insert($3);}
     | ID{$$=new baseAST(AST_Type::T_var,$1);delete $1;}
-    | INT{$$=new constNode($1,AST_DataType::DT_integer);}
-    | FLOAT{$$=new constNode($1,AST_DataType::DT_float);}
+    | INT{$$=new constNode($1,AST_DataType::DT_integer);$$->name="constint";}
+    | FLOAT{$$=new constNode($1,AST_DataType::DT_float);$$->name="constfloat";}
     ;
 
 Args : Args COMMA Exp{$$=$1;$$->Insert($3);}
