@@ -1,7 +1,5 @@
 #include "AST.h"
-#include <map>
 
-using namespace std;
 
 // Constructor
 baseAST::baseAST() {
@@ -90,7 +88,7 @@ const char *datatypes[]={
     "DT_string",   //4
     "DT_function", //5
 };
-map<string,string> operatorMap{{"AND","&&"},{"OR","||"},{"ADD","+"},{"MINUS","-"},{"MULT","*"},{"DIV","÷"},{"EQUAL","=="},{"LE","<="},{"GE",">="},{"NE","!="},{"LESS","<"},{"GREATER",">"},{"LOGICAND","&"},{"MINUSDIGIT","-"},{"NOT","!"}};
+std::map<std::string, std::string> operatorMap{{"AND","&&"},{"OR","||"},{"ADD","+"},{"MINUS","-"},{"MULT","*"},{"DIV","÷"},{"EQUAL","=="},{"LE","<="},{"GE",">="},{"NE","!="},{"LESS","<"},{"GREATER",">"},{"LOGICAND","&"},{"MINUSDIGIT","-"},{"NOT","!"}};
 
 json_t genJson(baseAST *ast){
     json_t treeRoot;
@@ -186,7 +184,7 @@ int baseAST::staticID = 0;
 
 void baseAST::buildTable(Func *scope) {
     // Traverse among the tree to build the symbol table
-     std::cout << "[Build] target type: " << types[this->type] << std::endl;
+//     std::cout << "[Build] target type: " << types[this->type] << std::endl;
     switch (this->type) {
         case AST_Type::T_var:
             // Insert the variable into the functino symbol table
@@ -358,19 +356,19 @@ void baseAST::buildTable(Func *scope) {
 
 void baseAST::scanTree(Func *scope) {
     // Traverse among the tree to build the symbol table
-    std::cout << "[scan] target type: " << types[this->type] << " scope: " << scope << std::endl;
+//    std::cout << "[scan] target type: " << types[this->type] << " scope: " << scope << std::endl;
     switch (this->type) {
         case AST_Type::T_var:
             if(scope){
                 if(scope->localVars.find(this->name) != scope->localVars.end()){
                     // Duplicate variable
-                    info(InfoLevel::INFO, "Used local var " + this->name);
+//                    info(InfoLevel::INFO, "Used local var " + this->name);
                     scope->localVars[this->name]->used = true;
                 }
             }
             if(globalVars.find(this->name) != globalVars.end()){
                 // Duplicate variable
-                info(InfoLevel::INFO, "Used global var " + this->name);
+//                info(InfoLevel::INFO, "Used global var " + this->name);
                 globalVars[this->name]->used = true;
             }
             break;
@@ -463,7 +461,6 @@ void baseAST::scanTree(Func *scope) {
         case AST_Type::T_operator:
             // local var
             for(baseAST * &t: this->children){
-                std::cout << "testing " << t->name << std::endl;
                 if(scope){
                     if(scope->localVars.find(t->name) != scope->localVars.end()){
                         // Duplicate variable
@@ -509,17 +506,17 @@ void printTable(){
     std::cout << std::endl;
 }
 void checkVars(){
-    std::cout << "Checking Global Vars: " << std::endl;
+//    std::cout << "Checking Global Vars: " << std::endl;
     for(auto &i: globalVars){
         if(!i.second->used){
             info(InfoLevel::WARNING, "Unused global symbol: " + i.first);
         }
     }
     for(auto &f: globalFuncs){
-        std::cout << "Checking function: " << f.first << std::endl;
+//        std::cout << "Checking function: " << f.first << std::endl;
         for(auto &i: f.second->localVars){
             if(!i.second->used){
-                info(InfoLevel::WARNING, "Unused local symbol: " + i.first);
+                info(InfoLevel::WARNING, "Unused local symbol " + i.first + " in function " + f.first);
             }
         }
     }
