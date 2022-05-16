@@ -1,7 +1,4 @@
 #include "AST.h"
-#include <map>
-
-using namespace std;
 
 // Constructor
 baseAST::baseAST() {
@@ -17,7 +14,6 @@ baseAST::baseAST(AST_Type type, AST_DataType dataType){
     this->dataType=dataType;
     this->childCnt=0;
 }
-
 
 
 varNode::varNode(const char *name, AST_DataType dataType){
@@ -90,7 +86,7 @@ const char *datatypes[]={
     "DT_string",   //4
     "DT_function", //5
 };
-map<string,string> operatorMap{{"AND","&&"},{"OR","||"},{"ADD","+"},{"MINUS","-"},{"MULT","*"},{"DIV","÷"},{"EQUAL","=="},{"LE","<="},{"GE",">="},{"NE","!="},{"LESS","<"},{"GREATER",">"},{"LOGICAND","&"},{"MINUSDIGIT","-"},{"NOT","!"}};
+std::map<std::string, std::string> operatorMap{{"AND","&&"},{"OR","||"},{"ADD","+"},{"MINUS","-"},{"MULT","*"},{"DIV","÷"},{"EQUAL","=="},{"LE","<="},{"GE",">="},{"NE","!="},{"LESS","<"},{"GREATER",">"},{"LOGICAND","&"},{"MINUSDIGIT","-"},{"NOT","!"}};
 
 json_t genJson(baseAST *ast){
     json_t treeRoot;
@@ -150,7 +146,7 @@ json_t genJson(baseAST *ast){
         sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
         break;
     }
-    // if(ast->dataType==0)    
+    // if(ast->dataType==0)
     //     sprintf(n, "id:{%d} name:%s type:%s", ast->id,  ast->name.c_str(),types[ast->type]);
     // else
     //     sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
@@ -186,7 +182,7 @@ int baseAST::staticID = 0;
 
 void baseAST::buildTable(Func *scope) {
     // Traverse among the tree to build the symbol table
-//     std::cout << "target type: " << this->type << std::endl;
+//     std::cout << "[Build] target type: " << types[this->type] << std::endl;
     switch (this->type) {
         case AST_Type::T_var:
             // Insert the variable into the functino symbol table
@@ -255,7 +251,7 @@ void baseAST::buildTable(Func *scope) {
             this->dataType = this->children.at(0)->dataType;
 
             this->children.at(1)->buildTable(scope);
-        
+
             break;
         case AST_Type::T_root:
             // Root only has 2 children
@@ -265,7 +261,7 @@ void baseAST::buildTable(Func *scope) {
         case AST_Type::T_block:
             // Block : AST_Type AST_Type
             this->children.at(0)->buildTable(scope);
-            this->children.at(1)->buildTable(scope);
+//            this->children.at(1)->buildTable(scope);
             break;
 
         case AST_Type::T_list:
@@ -303,7 +299,7 @@ void baseAST::buildTable(Func *scope) {
             }
             else if(this->name == "Stmt_List"){
                 for(auto &t: this->children){
-                    t->buildTable(nullptr);
+                    t->buildTable(scope);
                 }
             }
 
@@ -330,7 +326,9 @@ void baseAST::buildTable(Func *scope) {
                     return;
                 }else {
                     // add the function vars to local vars
-                    scope->localVars[this->name] = new Var(this->name,this->dataType);
+                    std::string n = this->children.at(1)->name;
+//                    info(InfoLevel::INFO, "Create func param var " + n + " in function " + scope->name);
+                    scope->localVars[n] = new Var(this->name,this->dataType);
                 }
             }
 
@@ -340,13 +338,144 @@ void baseAST::buildTable(Func *scope) {
         case AST_Type::T_tydf:
             break;
         case AST_Type::T_expr:
+            // Expression
+            for(auto &t: this->children){
+                t->buildTable(scope);
+            }
             break;
         case AST_Type::T_operator:
             break;
         default:
-
             break;
         
+    }
+
+}
+
+void baseAST::scanTree(Func *scope) {
+    // Traverse among the tree to build the symbol table
+//    std::cout << "[scan] target type: " << types[this->type] << " scope: " << scope << std::endl;
+    switch (this->type) {
+        case AST_Type::T_var:
+            if(scope){
+                if(scope->localVars.find(this->name) != scope->localVars.end()){
+                    // Duplicate variable
+//                    info(InfoLevel::INFO, "Used local var " + this->name);
+                    scope->localVars[this->name]->used = true;
+                }
+            }
+            if(globalVars.find(this->name) != globalVars.end()){
+                // Duplicate variable
+//                info(InfoLevel::INFO, "Used global var " + this->name);
+                globalVars[this->name]->used = true;
+            }
+            break;
+        case AST_Type::T_func:
+            // Insert the constant into the globalFuncs symbol table
+            for(auto &t: this->children){
+                t->scanTree(globalFuncs[this->name]);
+            }
+            break;
+
+        case AST_Type::T_defi:
+            // Definition of a specific var
+            // Var : AST_Type Var_List
+            this->children.at(1)->dataType = this->children.at(0)->dataType;
+            this->dataType = this->children.at(0)->dataType;
+
+            this->children.at(1)->scanTree(scope);
+
+            break;
+        case AST_Type::T_root:
+            // Root only has 2 children
+            this->children.at(1)->scanTree(nullptr);
+            break;
+        case AST_Type::T_block:
+            // Block : AST_Type AST_Type
+//            this->children.at(0)->scanTree(scope);
+            this->children.at(1)->scanTree(scope);
+            break;
+
+        case AST_Type::T_list:
+            // List has many types
+
+            if(this->name == "Def_List"){
+                // Definition list
+                // Def_list : Def_list Var SEMI
+                // 每个 Var 是类似于 int a,b,c的形式
+                for(auto &t: this->children){
+                    t->scanTree(scope);
+                }
+            }
+            else if(this->name == "Var_List"){
+                // Var list
+                // Var_List : Var_List COMMA VarDec
+                for(auto &t: this->children){
+                    t->dataType = this->dataType;
+                    t->scanTree(scope);
+                }
+            }
+            else if(this->name == "Fun_List"){
+                // Fun_list
+                for(auto &t: this->children){
+                    t->scanTree(nullptr);
+                }
+            }
+            else if(this->name == "Fun_Var_List"){
+                // Fun_Var_List
+                // Fun_Var_List: Fun_Var_List COMMA
+                for(auto &t: this->children){
+                    t->scanTree(scope);
+                }
+
+            }
+            else if(this->name == "Stmt_List"){
+                for(auto &t: this->children){
+                    t->scanTree(scope);
+                }
+            }
+
+            else if(this->name == "Args"){
+                for(auto &t: this->children){
+                    t->scanTree(scope);
+                }
+            }
+
+            break;
+
+        case AST_Type::T_fvar:
+            // function var
+            // Fun_Var:AST_Type VarDec
+
+            break;
+        case AST_Type::T_tydf:
+            break;
+        case AST_Type::T_expr:
+            // Expression
+            for(auto &t: this->children){
+                t->scanTree(scope);
+            }
+            break;
+        case AST_Type::T_operator:
+            // local var
+            for(baseAST * &t: this->children){
+                if(scope){
+                    if(scope->localVars.find(t->name) != scope->localVars.end()){
+                        // Duplicate variable
+                        info(InfoLevel::INFO, "Used local var " + t->name);
+                        scope->localVars[t->name]->used = true;
+                    }
+                }
+                if(globalVars.find(t->name) != globalVars.end()){
+                    // Duplicate variable
+                    info(InfoLevel::INFO, "Used global var " + t->name);
+                    globalVars[t->name]->used = true;
+                }
+            }
+            break;
+        default:
+            break;
+
     }
 
 }
@@ -367,14 +496,30 @@ void printTable(){
     for(auto it=globalFuncs.begin();it!=globalFuncs.end();it++){
         std::cout << it->first << " ";
         std::cout << it->second->localVars.size() << " local Vars: ";
-        for(auto var :it->second->localVars){
+        for(auto &var :it->second->localVars){
             std::cout << var.first << " ";
         }
         std::cout << std::endl;
     }
     std::cout << std::endl;
 }
+void checkVars(){
+//    std::cout << "Checking Global Vars: " << std::endl;
+    for(auto &i: globalVars){
+        if(!i.second->used){
+            info(InfoLevel::WARNING, "Unused global symbol: " + i.first);
+        }
+    }
+    for(auto &f: globalFuncs){
+//        std::cout << "Checking function: " << f.first << std::endl;
+        for(auto &i: f.second->localVars){
+            if(!i.second->used){
+                info(InfoLevel::WARNING, "Unused local symbol " + i.first + " in function " + f.first);
+            }
+        }
+    }
 
+}
 
 // int main(int argc, char ** argv){
 
