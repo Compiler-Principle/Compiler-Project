@@ -64,21 +64,6 @@ typedef enum AST_Operator
     O_MINUSDIGIT,
     O_NOT,
     O_noneop,
-    // O_OR,
-    // O_AND,
-    // O_OP,
-    // O_ADD,
-    // O_EQ,
-    // O_LE,
-    // O_GE,
-    // O_NE,
-    // O_LT,
-    // O_GT,
-    // O_add,
-    // O_min,
-    // O_mul,
-    // O_ddi,
-    // O_mod,
 } Operator;
 
 class Var {
