@@ -17,6 +17,8 @@ int main(int argc,char** argv){
     head->print();
     head->buildTable(nullptr);
     printTable();
+    head->scanTree(nullptr);
+    checkVars();
 
     return 0;
 }

@@ -70,7 +70,8 @@ class Var {
 public:
     std::string name;
     AST_DataType type;
-    Var(std::string name, AST_DataType type) : name(std::move(name)), type(type) {}
+    bool used; // default false
+    Var(std::string name, AST_DataType type) : name(std::move(name)), type(type), used(false) {}
 
     ~Var() {}
 
@@ -107,6 +108,7 @@ public:
     void Insert(baseAST *);
     void print(void);
     void buildTable(Func *scope);
+    void scanTree(Func *scope);
 };
 
 class varNode : public baseAST{
@@ -138,4 +140,5 @@ public:
 extern std::map<std::string, Var *> globalVars;
 extern std::map<std::string, Func *> globalFuncs;
 void printTable();
+void checkVars();
 #endif
