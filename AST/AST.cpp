@@ -150,7 +150,7 @@ json_t genJson(baseAST *ast){
         sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
         break;
     }
-    // if(ast->dataType==0)    
+    // if(ast->dataType==0)
     //     sprintf(n, "id:{%d} name:%s type:%s", ast->id,  ast->name.c_str(),types[ast->type]);
     // else
     //     sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
@@ -255,7 +255,7 @@ void baseAST::buildTable(Func *scope) {
             this->dataType = this->children.at(0)->dataType;
 
             this->children.at(1)->buildTable(scope);
-        
+
             break;
         case AST_Type::T_root:
             // Root only has 2 children
@@ -330,8 +330,9 @@ void baseAST::buildTable(Func *scope) {
                     return;
                 }else {
                     // add the function vars to local vars
-                    info(InfoLevel::INFO, "Create local var " + this->name + " in function " + scope->name);
-                    scope->localVars[this->name] = new Var(this->name,this->dataType);
+                    std::string n = this->children.at(1)->name;
+                    info(InfoLevel::INFO, "Create func param var " + n + " in function " + scope->name);
+                    scope->localVars[n] = new Var(this->name,this->dataType);
                 }
             }
 
