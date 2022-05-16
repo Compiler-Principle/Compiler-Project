@@ -74,7 +74,7 @@ blank   [ \t\v\n\f\r]
 "cin" {if (print_lex==1 ) printf("cin\n"); return INPUT;}
 "cout" {if (print_lex==1 ) printf("cout\n"); return OUTPUT;}
 
-\"(\\.|[^"\\])*\" {if (print_lex==1 ) printf("format string:%s\n",yytext); return FormatStr;}
+\"(\\.|[^"\\])*\" {if (print_lex==1 ) printf("format string:%s\n",yytext);     yylval.type_str=strdup(yytext);return FormatStr;}
 
 {FLOAT} {
     if (print_lex==1 ) 

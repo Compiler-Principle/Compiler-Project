@@ -150,7 +150,7 @@ json_t genJson(baseAST *ast){
         sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
         break;
     }
-    // if(ast->dataType==0)    
+    // if(ast->dataType==0)
     //     sprintf(n, "id:{%d} name:%s type:%s", ast->id,  ast->name.c_str(),types[ast->type]);
     // else
     //     sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
@@ -186,7 +186,7 @@ int baseAST::staticID = 0;
 
 void baseAST::buildTable(Func *scope) {
     // Traverse among the tree to build the symbol table
-//     std::cout << "target type: " << this->type << std::endl;
+     std::cout << "target type: " << this->type << std::endl;
     switch (this->type) {
         case AST_Type::T_var:
             // Insert the variable into the functino symbol table
@@ -196,7 +196,7 @@ void baseAST::buildTable(Func *scope) {
                     // Duplicate variable
                     info(InfoLevel::ERROR, "Duplicate global variable: " + this->name);
                 }else{
-//                    info(InfoLevel::INFO, "Create global var " + this->name);
+                    info(InfoLevel::INFO, "Create global var " + this->name);
                     globalVars[this->name] = new Var(this->name,this->dataType);
                 }
             }
@@ -206,7 +206,7 @@ void baseAST::buildTable(Func *scope) {
                     // Duplicate variable
                     info(InfoLevel::ERROR, "Duplicate local variable: " + this->name);
                 }else {
-//                    info(InfoLevel::INFO, "Create func var " + this->name);
+                    info(InfoLevel::INFO, "Create func var " + this->name);
                     scope->localVars[this->name] = new Var(this->name,this->dataType);
                 }
             }
@@ -255,7 +255,7 @@ void baseAST::buildTable(Func *scope) {
             this->dataType = this->children.at(0)->dataType;
 
             this->children.at(1)->buildTable(scope);
-        
+
             break;
         case AST_Type::T_root:
             // Root only has 2 children
@@ -330,7 +330,9 @@ void baseAST::buildTable(Func *scope) {
                     return;
                 }else {
                     // add the function vars to local vars
-                    scope->localVars[this->name] = new Var(this->name,this->dataType);
+                    std::string n = this->children.at(1)->name;
+                    info(InfoLevel::INFO, "Create func param var " + n + " in function " + scope->name);
+                    scope->localVars[n] = new Var(this->name,this->dataType);
                 }
             }
 
