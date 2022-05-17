@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - dev/AST
+      -
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -11,23 +12,28 @@ jobs:
         uses: jwlawson/actions-setup-cmake@v1.12
         with:
           cmake-version: '3.16.x'
+
       - name: Checkout
       - uses: actions/checkout@v3
         with:
           ref: dev/AST
+
       - name: Use cmake
         run: cmake --version
+
       - name: Use flex
         run: sudo apt install flex
+
       - name: Use bison
         run: sudo apt install bison
-  build:
-    needs: prepare
-    runs-on: ubuntu-latest
-    steps:
-      - name: Build
-        run: |
-          cd ${{ github.workspace }}
-          ls -la
-          mkdir build && cd build
-          cmake ..
+
+#  build:
+#    needs: prepare
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Build
+#        run: |
+#          cd ${{ github.workspace }}
+#          ls -la
+#          mkdir build && cd build
+#          cmake ..
