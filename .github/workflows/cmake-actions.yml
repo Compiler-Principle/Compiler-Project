@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Build
         run: |
-          cd ${{ github.workspace }}
           ls -la
           mkdir build && cd build
           cmake ..
+#          cd ${{ github.workspace }}
