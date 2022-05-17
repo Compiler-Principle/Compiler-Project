@@ -1,11 +1,14 @@
 #include<stdio.h>
-
+#include<string.h>
+#include<ctype.h>
+#define MAX_LINE 400
 int name[105]; // 课程们
 int credit[105]; // 学分
-char prereq[105][500];
+char prereq[105][MAX_LINE];
 int grade[105];
-char t[105][105];
+
 int courses_len;
+int nextCourses_len = 0;
 
 int parseGrade(char g){
     if(g == 'A') return 4;
@@ -24,17 +27,17 @@ int strCount(char s[], char c){
     return count;
 }
 
-void summary(double gpa, int hAttempt, int hComplete, int cRemain, char courses[][105]){
+void summary(double gpa, int hAttempt, int hComplete, int cRemain, int courses[]){
 
     printf("GPA: %.1f\n", gpa);
     printf("Hours Attempted: %d\n", hAttempt);
     printf("Hours Completed: %d\n", hComplete);
     printf("Credits Remaining: %d\n", cRemain);
     printf("\nPossible Courses to Take Next\n");
-    for(int i = 0; i < courses_len; i++){
-        printf("  %s\n", courses[i]);
+    for(int i = 0; i < nextCourses_len; i++){
+        printf("  c%d\n", courses[i]);
     }
-    if(courses_len == 0 && cRemain == 0) printf("  None - Congratulations!\n");
+    if(nextCourses_len == 0 && cRemain == 0) printf("  None - Congratulations!\n");
 }
 
 int strContains(char basicString[], char s) {
@@ -44,15 +47,102 @@ int strContains(char basicString[], char s) {
     return 0;
 }
 
-int main(){
-    char name_c[100], prereq_c[100], credit_c[100], grade_c[100];
-    int cnt;
+int a2i(const char *p, int start){
+    int cyc, ret, sign;
+    int t;
+    t = 0;
+
+    while(start--){
+        p++;
+    }
+    cyc = (int)*(p++);
+    sign = cyc;
+    if (cyc == '-' || cyc == '+')
+        cyc = (int)*(p++);
+
+    ret = 0;
+
+    while (isdigit(cyc)) {
+        ret = 10 * ret + (cyc - '0');
+        cyc = (int)*(p++);
+    }
+
+    return sign == '-' ? -ret : ret;
+}
+
+//int strlen(char s[]){
+//    int i;
+//    i = 0;
+//    while(s[i] != 0){
+//        i++;
+//    }
+//    return i;
+//}
+
+//void memset(char i[], char target, int len){
+//    int j;
+//    j = 0;
+//    for(; j < len; j++){
+//        i[j] = target;
+//    }
+//}
+
+void substr(char s[], char sub[], int start, int len){
+    int i;
+    i = 0;
+    for(; i < len; i++){
+        sub[i] = s[start + i];
+    }
+    sub[i] = 0;
+}
+
+int lineSplit(char input[], char deli, char res[][MAX_LINE]){
+    int len, i, cnt;
+//    len = 0;
+//    i = 0;
     cnt = 0;
-    while(getline(std::cin, line)){
-        std::vector<std::string> t = lineSplit(line);
-        if(t.size() == 1) break;
-        cs[cnt] = course(t[0], atoi(t[1].c_str()), t[2], parseGrade(t[3]));
+    int deli_count = strCount(input, deli);
+    int delimiter_idx[100] = {0}; // 至少deli_count+2个元素
+    int ii = 1;
+    char tmp[MAX_LINE];
+    delimiter_idx[deli_count+1] = strlen(input);
+    for(int i = 0; i < strlen(input); i++){
+        if(input[i] == deli){
+            delimiter_idx[ii] = i;
+            ii++;
+        }
+    }
+    for(i = 0; i < deli_count+1; i++){
+        if(i == 0){
+            substr(input, tmp, delimiter_idx[i], delimiter_idx[i+1]-delimiter_idx[i]);
+        }
+        else{
+            substr(input, tmp, delimiter_idx[i]+1, delimiter_idx[i+1]-delimiter_idx[i]-1);
+        }
+        strcpy(res[cnt], tmp);
         cnt++;
+    }
+    return cnt;
+
+}
+
+int main(){
+    int course_cnt;
+    course_cnt = 0;
+    char line[MAX_LINE];
+    char t[105][MAX_LINE];
+    int line_slice;
+    while(scanf("%s", line) != EOF){
+//        if(course_cnt > 90){
+//            int a = 0;
+//        }
+        line_slice = lineSplit(line, '|', t);
+        if(line_slice == 1) break;
+        name[course_cnt] = a2i(t[0], 1);
+        credit[course_cnt] = a2i(t[1], 0);
+        strcpy(prereq[course_cnt], t[2]);
+        grade[course_cnt] = parseGrade(t[3][0]);
+        course_cnt++;
     }
     int hAttempt = 0; // 尝试学分
     int hComplete = 0; // 已修学分
@@ -60,12 +150,11 @@ int main(){
     float credit_score = 0.0;
 
     int nextCourse[105];
-    int nextCourses_len = 0;
     int canTake;
     int k;
     int found;
 
-    for(int i = 0; i < cnt; i++){
+    for(int i = 0; i < course_cnt; i++){
         if(grade[i] == -1){
             // -1 代表未修过
             cRemain += credit[i];
@@ -85,11 +174,15 @@ int main(){
         }
     }
 
-    for(int i = 0; i < cnt; i++){
+    for(int i = 0; i < course_cnt; i++){
+        if(name[i] == 76){
+            int a = 0;
+        }
+
         // 判断当前课程是否能够被推荐
         if(grade[i] == -1 || grade[i] == 0){
             // 未修过 或者已经挂科了
-            if(prereq[i] == ""){
+            if(strlen(prereq[i]) == 0){
                 // 没有先修课程
                 nextCourse[nextCourses_len] = name[i];
                 nextCourses_len++;
@@ -98,40 +191,51 @@ int main(){
             else{
                 canTake = 1;
                 // 有先修课程
-//                int valid_pres[105][50][100];
-//                int valid_pres_len = 0;
-                int valid_pre_strs[105][100];
-                int valid_pre_strs_len = 0;
-                int pre_strs[105];
-                int pre_strs_len = 0;
-//                std::vector<std::vector<std::string>> valid_pres;
+
                 // 这门课的valid的先修课程们
-//                std::vector<std::string> valid_pre_strs;
-                if(strContains(prereq[i], ";")){
-                    valid_pre_strs = lineSplit(prereq[i], ";");
+                char valid_pre_strs[105][MAX_LINE];
+                //c1, c2, c3
+                //c4, c5, c6
+                int valid_pre_strs_len = 0;
+                // 2
+                char pre_strs[105][MAX_LINE];// 某一条先修课程们的名字, [105][5]就够
+                // c1
+                // c2
+                // c3
+                int pre_strs_len = 0;
+                // 3
+
+                if(strContains(prereq[i], ';')){
+//                    valid_pre_strs = lineSplit(prereq[i], ";");
+                    valid_pre_strs_len = lineSplit(prereq[i], ';', valid_pre_strs);
                 }
                 else{
-                    valid_pre_strs[valid_pre_strs_len] = prereq[i];
+                    strcpy(valid_pre_strs[valid_pre_strs_len], prereq[i]);
+                    valid_pre_strs_len++;
+//                    valid_pre_strs[valid_pre_strs_len] = prereq[i];
                 }
 
-                for(std::string& s : valid_pre_strs){
-//                    std::vector<std::string> pre_strs; // 某一条先修课程们的名字
-                    if(strContains(s, ",")){
+                for(int pres_id = 0; pres_id < valid_pre_strs_len; pres_id++){
+
+                    if(strContains(valid_pre_strs[pres_id], ',')){
                         // 有多个先修课程
-                        pre_strs = lineSplit(s, ",");
+//                        pre_strs = lineSplit(valid_pre_strs[k], ",");
+                        pre_strs_len = lineSplit(valid_pre_strs[pres_id], ',', pre_strs);
                     }
                     else{
-                        pre_strs.push_back(s);
+                        strcpy(pre_strs[pre_strs_len], valid_pre_strs[pres_id]);
+//                        pre_strs[pre_strs_len] = valid_pre_strs[k];
+                        pre_strs_len++;
                     }
 
                     // 如果本个先修课程的要求都满足了，那么就可以推荐
                     canTake = 1;
                     // 接下来检测某个要求中的每一门课
                     for(int l = 0; l < pre_strs_len; l++){
-                        int this_course = pre_strs[l];
+                        int this_course = a2i(pre_strs[l], 1);
                         // 对某个this_course 需要检测在列表中的状态
                         found = 0;
-                        for(k = 0; k < cnt; k++){
+                        for(k = 0; k < course_cnt; k++){
                             if(name[k] == this_course){
                                 found = 1;
                                 if(grade[k] == -1 || grade[k] == 0){
@@ -158,7 +262,13 @@ int main(){
                         nextCourses_len++;
                         break; // 也不用看后面的可能预修要求了
                     }
+                    memset(pre_strs, 0, sizeof(pre_strs));
+                    pre_strs_len = 0;
+
                 }
+                // reset the arrays
+                memset(valid_pre_strs, 0, sizeof(valid_pre_strs));
+                valid_pre_strs_len = 0;
 
             }
         }

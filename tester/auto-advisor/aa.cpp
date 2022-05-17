@@ -123,7 +123,7 @@ int main(){
             else{
                 bool canTake = true;
                 // 有先修课程
-                std::vector<std::vector<std::string>> valid_pres;
+//                std::vector<std::vector<std::string>> valid_pres;
                 // 这门课的valid的先修课程们
                 std::vector<std::string> valid_pre_strs;
                 if(strContains(cs[i].prereq, ";")){
