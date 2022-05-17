@@ -8,6 +8,7 @@ map<string, Function *> functions;
 map<string, Value *> globalVariables;
 
 Function *funcPrintf;
+Function *funcScanf;
 
 void InitIOFunc() {
     vector<Type *> putsArgs;
@@ -16,6 +17,7 @@ void InitIOFunc() {
 
     FunctionType *putsType = FunctionType::get(Builder->getInt32Ty(), argsRef, true);
     funcPrintf = Function::Create(putsType, Function::ExternalLinkage, Twine("printf"), *TheModule);
+    funcScanf = Function::Create(putsType, Function::ExternalLinkage, Twine("__isoc99_scanf"), *TheModule);
 }
 
 Type *getType(string type) {
@@ -102,14 +104,22 @@ void genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         genExp(ast, funBuilder);
     }
     else if(ast->name == "Input_Exp") {
+        vector<Value *> args;
+        args.push_back(funBuilder.CreateGlobalStringPtr(ast->children[0]->name.substr(1, ast->children[0]->name.length() - 2)));
+        for(int i = 0;i < ast->children[1]->childCnt;i++) {
+            auto arg = genExp(ast->children[1]->children[i], funBuilder);
+            args.push_back(arg);
+        }
+        ArrayRef<Value *> argsRef(args);
 
+        funBuilder.CreateCall(funcScanf, argsRef);
     }
     else if(ast->name == "Output_Exp") {
         vector<Value *> args;
         args.push_back(funBuilder.CreateGlobalStringPtr(ast->children[0]->name.substr(1, ast->children[0]->name.length() - 2)));
         for(int i = 0;i < ast->children[1]->childCnt;i++) {
             auto arg = genExp(ast->children[1]->children[i], funBuilder);
-            args.push_back(funBuilder.CreateLoad(arg));
+            args.push_back(arg);
         }
         ArrayRef<Value *> argsRef(args);
 
@@ -129,11 +139,31 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         return ConstantFP::get(Type::getFloatTy(*TheContext), ((constNode *) ast)->dvalue.floatt);
     }
     else if(ast->type == T_var) {
-        return globalVariables[ast->name];
+        return funBuilder.CreateLoad(globalVariables[ast->name]);
     }
     else if(ast->name == "ASSIGN") {
-        cout << ast->children[0]->name;
-        return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), genExp(ast->children[0], funBuilder));
+        return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), globalVariables[ast->children[0]->name]);
+    }
+    else if(ast->name == "AND") {
+        return funBuilder.CreateAnd(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+    }
+    else if(ast->name == "OR") {
+        return funBuilder.CreateOr(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+    }
+    else if(ast->name == "ADD") {
+        return funBuilder.CreateAdd(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+    }
+    else if(ast->name == "MINUS") {
+        return funBuilder.CreateSub(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+    }
+    else if(ast->name == "MULT") {
+        return funBuilder.CreateMul(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+    }
+    else if(ast->name == "DIV") {
+        return funBuilder.CreateFDiv(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+    }
+    else if(ast->name == "LOGICAND") {
+        return globalVariables[ast->children[0]->name];
     }
     return ConstantInt::get(Type::getInt32Ty(*TheContext), 1909);
 }

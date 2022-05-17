@@ -27,7 +27,7 @@ typedef enum AST_Type
     T_expr, //10
     T_formatstr, //11
     T_block, //12
-} Type;
+} AST_Type;
 
 typedef enum AST_DataType
 {
@@ -37,14 +37,14 @@ typedef enum AST_DataType
     DT_float,
     DT_string,
     DT_function,
-} DataType;
+} AST_DataType;
 
 typedef union AST_Value
 {
     int integer;
     char *str;
     float floatt;
-} Value;
+} AST_Value;
 
 typedef enum AST_Operator
 {
@@ -64,7 +64,7 @@ typedef enum AST_Operator
     O_MINUSDIGIT,
     O_NOT,
     O_noneop,
-} Operator;
+} AST_Operator;
 
 class Var {
 public:

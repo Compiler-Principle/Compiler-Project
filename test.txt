@@ -1,7 +1,8 @@
-int a;
+int a, b;
 
 function int main() {
-    a = 1;
-    cout("%d", a);
+    cin("%d", &a);
+    b = a + 1;
+    cout("%d", b);
     return 0;
 }
