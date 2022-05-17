@@ -1,12 +1,15 @@
 name: cmake-actions
+
 on:
   push:
     branches:
       - dev/AST
-      -
+
 jobs:
   prepare:
+    name: Prepare
     runs-on: ubuntu-latest
+
     steps:
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.12
