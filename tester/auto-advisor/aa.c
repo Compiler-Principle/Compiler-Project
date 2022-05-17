@@ -87,6 +87,16 @@ int a2i(const char *p, int start){
 //    }
 //}
 
+//void strcpy(char dest[], char src[]){
+//    int i;
+//    i = 0;
+//    while(src[i] != 0){
+//        dest[i] = src[i];
+//        i++;
+//    }
+//    dest[i] = 0;
+//}
+
 void substr(char s[], char sub[], int start, int len){
     int i;
     i = 0;
@@ -106,7 +116,7 @@ int lineSplit(char input[], char deli, char res[][MAX_LINE]){
     int ii = 1;
     char tmp[MAX_LINE];
     delimiter_idx[deli_count+1] = strlen(input);
-    for(int i = 0; i < strlen(input); i++){
+    for(i = 0; i < strlen(input); i++){
         if(input[i] == deli){
             delimiter_idx[ii] = i;
             ii++;
@@ -133,9 +143,6 @@ int main(){
     char t[105][MAX_LINE];
     int line_slice;
     while(scanf("%s", line) != EOF){
-//        if(course_cnt > 90){
-//            int a = 0;
-//        }
         line_slice = lineSplit(line, '|', t);
         if(line_slice == 1) break;
         name[course_cnt] = a2i(t[0], 1);
