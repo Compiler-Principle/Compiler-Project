@@ -30,13 +30,13 @@ jobs:
       - name: Use bison
         run: sudo apt install bison
 
-#  build:
-#    needs: prepare
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Build
-#        run: |
-#          cd ${{ github.workspace }}
-#          ls -la
-#          mkdir build && cd build
-#          cmake ..
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        run: |
+          cd ${{ github.workspace }}
+          ls -la
+          mkdir build && cd build
+          cmake ..
