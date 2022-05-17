@@ -27,7 +27,7 @@ typedef enum AST_Type
     T_expr, //10
     T_formatstr, //11
     T_block, //12
-} AST_Type;
+} Type;
 
 typedef enum AST_DataType
 {
@@ -37,14 +37,14 @@ typedef enum AST_DataType
     DT_float,
     DT_string,
     DT_function,
-} AST_DataType;
+} DataType;
 
 typedef union AST_Value
 {
     int integer;
     char *str;
     float floatt;
-} AST_Value;
+} Value;
 
 typedef enum AST_Operator
 {
@@ -64,28 +64,14 @@ typedef enum AST_Operator
     O_MINUSDIGIT,
     O_NOT,
     O_noneop,
-    // O_OR,
-    // O_AND,
-    // O_OP,
-    // O_ADD,
-    // O_EQ,
-    // O_LE,
-    // O_GE,
-    // O_NE,
-    // O_LT,
-    // O_GT,
-    // O_add,
-    // O_min,
-    // O_mul,
-    // O_ddi,
-    // O_mod,
-} AST_Operator;
+} Operator;
 
 class Var {
 public:
     std::string name;
     AST_DataType type;
-    Var(std::string name, AST_DataType type) : name(std::move(name)), type(type) {}
+    bool used; // default false
+    Var(std::string name, AST_DataType type) : name(std::move(name)), type(type), used(false) {}
 
     ~Var() {}
 
@@ -122,6 +108,7 @@ public:
     void Insert(baseAST *);
     void print(void);
     void buildTable(Func *scope);
+    void scanTree(Func *scope);
 };
 
 class varNode : public baseAST{
@@ -153,4 +140,5 @@ public:
 extern std::map<std::string, Var *> globalVars;
 extern std::map<std::string, Func *> globalFuncs;
 void printTable();
+void checkVars();
 #endif
