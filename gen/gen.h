@@ -15,10 +15,16 @@
 using namespace llvm;
 using namespace std;
 
+void InitIOFunc();
 void genCode(baseAST *ast);
-Function *genFun(baseAST *ast);
-Value *genValue(baseAST *ast);
-Type *getType(string type);
 void genBC();
+
+void genStmt(baseAST *ast, IRBuilder<> funBuilder);
+Type *getType(string type);
+Value *getDefaultValue(string type);
+Function *genPrototype(baseAST *ast);
+Function *genFunc(baseAST *ast);
+void genStmt(baseAST *ast, IRBuilder<> funBuilder);
+Value *genExp(baseAST *ast, IRBuilder<> funBuilder);
 
 #endif

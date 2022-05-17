@@ -21,6 +21,7 @@ int main(int argc,char** argv){
     head->scanTree(nullptr);
     checkVars();
 
+    InitIOFunc();
     genCode(head);
     genBC();
     return 0;
