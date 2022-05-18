@@ -171,7 +171,16 @@ void genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         Builder.SetInsertPoint(labelIfEnd);
     }
     else if(ast->name == "While_Stmt") {
-        
+        BasicBlock *labelWhileCond = BasicBlock::Create(TheContext, "wihle.cond", funBuilder.GetInsertBlock()->getParent());
+        BasicBlock *labelWhileBody = BasicBlock::Create(TheContext, "while.body", funBuilder.GetInsertBlock()->getParent());
+        BasicBlock *labelWhileEnd = BasicBlock::Create(TheContext, "while.end", funBuilder.GetInsertBlock()->getParent());
+        funBuilder.CreateBr(labelWhileCond);
+        Builder.SetInsertPoint(labelWhileCond);
+        funBuilder.CreateCondBr(genExp(ast->children[0], funBuilder), labelWhileBody, labelWhileEnd);
+        Builder.SetInsertPoint(labelWhileBody);
+        for(auto stmt : ast->children[1]->children[1]->children) genStmt(stmt, funBuilder);
+        funBuilder.CreateBr(labelWhileCond);
+        Builder.SetInsertPoint(labelWhileEnd);
     }
 }
 

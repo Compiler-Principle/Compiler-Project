@@ -1,15 +1,12 @@
-int a, b;
-float c, d;
-int e[2][3][4];
+int i, sum;
 
 function int main() {
-    cin("%d", &e[1][1][2]);
-    a = e[1][1][2] + 1;
-    if(a == 1) {
-        cout("true :: %d %d", a, e[1][1][2]);
+    i = 0;
+    sum = 0;
+    while(i <= 100) {
+        sum = sum + i;
+        i = i + 1;
     }
-    else {
-        cout("false :: %d %d", a, e[1][1][2]);
-    }
+    cout("%d", sum);
     return 0;
 }
