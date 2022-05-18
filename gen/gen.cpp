@@ -10,6 +10,13 @@ map<string, Value *> globalVariables;
 Function *funcPrintf;
 Function *funcScanf;
 
+string printType(Type *type) {
+    string str;
+    raw_string_ostream stream(str);
+    type->print(stream);
+    return str;
+}
+
 void InitIOFunc() {
     vector<Type *> putsArgs;
     putsArgs.push_back(Builder->getInt8Ty()->getPointerTo());
@@ -25,7 +32,7 @@ Type *getType(string type) {
         return Type::getInt32Ty(*TheContext);
     }
     else if(type == "float") {
-        return Type::getFloatTy(*TheContext);
+        return Type::getDoubleTy(*TheContext);
     }
     else if(type == "void") {
         return Type::getVoidTy(*TheContext);
@@ -135,8 +142,8 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
     if(ast->name == "constint") {
         return ConstantInt::get(Type::getInt32Ty(*TheContext), ((constNode *) ast)->dvalue.integer);
     }
-    else if(ast->name == "constint") {
-        return ConstantFP::get(Type::getFloatTy(*TheContext), ((constNode *) ast)->dvalue.floatt);
+    else if(ast->name == "constfloat") {
+        return ConstantFP::get(Type::getDoubleTy(*TheContext), ((constNode *) ast)->dvalue.floatt);
     }
     else if(ast->type == T_var) {
         return funBuilder.CreateLoad(globalVariables[ast->name]);
@@ -151,16 +158,28 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         return funBuilder.CreateOr(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
     }
     else if(ast->name == "ADD") {
-        return funBuilder.CreateAdd(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+        auto * l = genExp(ast->children[0], funBuilder);
+        auto * r = genExp(ast->children[1], funBuilder);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy())return funBuilder.CreateFAdd(l, r);
+        else return funBuilder.CreateAdd(l, r);
     }
     else if(ast->name == "MINUS") {
-        return funBuilder.CreateSub(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+        auto * l = genExp(ast->children[0], funBuilder);
+        auto * r = genExp(ast->children[1], funBuilder);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy())return funBuilder.CreateFSub(l, r);
+        else return funBuilder.CreateSub(l, r);
     }
     else if(ast->name == "MULT") {
-        return funBuilder.CreateMul(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+        auto * l = genExp(ast->children[0], funBuilder);
+        auto * r = genExp(ast->children[1], funBuilder);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy())return funBuilder.CreateFMul(l, r);
+        else return funBuilder.CreateMul(l, r);
     }
     else if(ast->name == "DIV") {
-        return funBuilder.CreateFDiv(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
+        auto * l = genExp(ast->children[0], funBuilder);
+        auto * r = genExp(ast->children[1], funBuilder);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy())return funBuilder.CreateFDiv(l, r);
+        else return funBuilder.CreateSDiv(l, r);
     }
     else if(ast->name == "LOGICAND") {
         return globalVariables[ast->children[0]->name];
@@ -176,7 +195,7 @@ void genGlobalVar(baseAST *ast) {
         auto gVar = TheModule->getGlobalVariable(var->name);
         gVar->setLinkage(llvm::GlobalValue::CommonLinkage);
         if(type == "int") gVar->setInitializer(ConstantInt::get(Type::getInt32Ty(*TheContext), 0));
-        else if(type == "float") gVar->setInitializer(ConstantFP::get(Type::getFloatTy(*TheContext), 0));
+        else if(type == "float") gVar->setInitializer(ConstantFP::get(Type::getDoubleTy(*TheContext), 0));
         globalVariables[var->name] = gVar;
     }
 }

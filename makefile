@@ -13,3 +13,4 @@ clean :
 run : parser
 	@./parser test.txt
 	@llvm-dis < main.bc
+	@lli main.bc

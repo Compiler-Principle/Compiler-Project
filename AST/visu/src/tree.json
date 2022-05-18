@@ -10,9 +10,9 @@
             {
               "childCnt": 0,
               "children": [],
-              "dataType": 2,
+              "dataType": 3,
               "id": 2,
-              "name": "2 typdef:int",
+              "name": "2 typdef:float",
               "type": 9
             },
             {
@@ -88,7 +88,7 @@
                           "children": [],
                           "dataType": 0,
                           "id": 15,
-                          "name": "15 formatstr:\"%d\"",
+                          "name": "15 formatstr:\"%lf\"",
                           "type": 11
                         },
                         {
@@ -148,15 +148,15 @@
                             {
                               "childCnt": 0,
                               "children": [],
-                              "dataType": 2,
+                              "dataType": 3,
                               "id": 20,
-                              "name": "20 const:1 DT_integer",
+                              "name": "20 const:1.100000 DT_float",
                               "type": 5
                             }
                           ],
                           "dataType": 0,
                           "id": 22,
-                          "name": "22 oper:+",
+                          "name": "22 oper:-",
                           "type": 2
                         }
                       ],
@@ -172,19 +172,27 @@
                           "childCnt": 0,
                           "children": [],
                           "dataType": 0,
-                          "id": 27,
-                          "name": "27 formatstr:\"%d\"",
+                          "id": 28,
+                          "name": "28 formatstr:\"%g %g\"",
                           "type": 11
                         },
                         {
-                          "childCnt": 1,
+                          "childCnt": 2,
                           "children": [
                             {
                               "childCnt": 0,
                               "children": [],
                               "dataType": 0,
                               "id": 24,
-                              "name": "24 var:b",
+                              "name": "24 var:a",
+                              "type": 3
+                            },
+                            {
+                              "childCnt": 0,
+                              "children": [],
+                              "dataType": 0,
+                              "id": 26,
+                              "name": "26 var:b",
                               "type": 3
                             }
                           ],
@@ -195,8 +203,8 @@
                         }
                       ],
                       "dataType": 0,
-                      "id": 26,
-                      "name": "26 exp:Output_Exp",
+                      "id": 27,
+                      "name": "27 exp:Output_Exp",
                       "type": 10
                     },
                     {
@@ -206,14 +214,14 @@
                           "childCnt": 0,
                           "children": [],
                           "dataType": 2,
-                          "id": 29,
-                          "name": "29 const:0 DT_integer",
+                          "id": 30,
+                          "name": "30 const:0 DT_integer",
                           "type": 5
                         }
                       ],
                       "dataType": 0,
-                      "id": 30,
-                      "name": "30 exp:return",
+                      "id": 31,
+                      "name": "31 exp:return",
                       "type": 10
                     }
                   ],
@@ -224,14 +232,14 @@
                 }
               ],
               "dataType": 0,
-              "id": 31,
-              "name": "31 CBLOCK",
+              "id": 32,
+              "name": "32 CBLOCK",
               "type": 12
             }
           ],
           "dataType": 0,
-          "id": 32,
-          "name": "32 func:main",
+          "id": 33,
+          "name": "33 func:main",
           "type": 6
         }
       ],
@@ -242,7 +250,7 @@
     }
   ],
   "dataType": 0,
-  "id": 33,
-  "name": "33 Program",
+  "id": 34,
+  "name": "34 Program",
   "type": 0
 }
