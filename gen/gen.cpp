@@ -55,6 +55,16 @@ Value *getDefaultValue(string type) {
     // return Builder.CreateAlloca(Type::getInt32Ty(TheContext));
 }
 
+int getOffset(vector<int> array, vector<int> offset) {
+    int o = 0;
+    int base = 1;
+    for(int i = array.size() - 1;i >= 0;i--) {
+        o += base * offset[i];
+        base *= array[i];
+    }
+    return o;
+}
+
 Function *genPrototype(baseAST *ast) {
     baseAST *retAST, *argAST, *blockAST;
     
@@ -148,10 +158,45 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         return ConstantFP::get(Type::getDoubleTy(TheContext), ((constNode *) ast)->dvalue.floatt);
     }
     else if(ast->type == T_var) {
-        return funBuilder.CreateLoad(globalVariables[ast->name]);
+        if(ast->childCnt == 0)
+            return funBuilder.CreateLoad(globalVariables[ast->name]);
+        else {
+            vector<int> offsets;
+            for(auto child : ast->children) offsets.push_back(((constNode *) child)->dvalue.integer);
+            int offset = getOffset(globalArray[ast->name], offsets);
+            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), ConstantInt::get(Type::getInt32Ty(TheContext), offset)};
+            auto *address = funBuilder.CreateGEP(globalVariables[ast->name], idxs);
+            return funBuilder.CreateLoad(address);
+        }
+    }
+    else if(ast->name == "LOGICAND") {
+        if(ast->children[0]->childCnt == 0)
+            return globalVariables[ast->children[0]->name];
+        else {
+            vector<int> offsets;
+            for(auto child : ast->children[0]->children) offsets.push_back(((constNode *) child)->dvalue.integer);
+            int offset = getOffset(globalArray[ast->children[0]->name], offsets);
+            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), ConstantInt::get(Type::getInt32Ty(TheContext), offset)};
+            auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
+            return address;
+        }
     }
     else if(ast->name == "ASSIGN") {
-        return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), globalVariables[ast->children[0]->name]);
+        if(ast->children[0]->childCnt == 0)
+            return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), globalVariables[ast->children[0]->name]);
+        else {
+            vector<int> offsets;
+            for(auto child : ast->children[0]->children) offsets.push_back(((constNode *) child)->dvalue.integer);
+            int offset = getOffset(globalArray[ast->children[0]->name], offsets);
+            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), ConstantInt::get(Type::getInt32Ty(TheContext), offset)};
+            auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
+            return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), address);
+        }
+    }
+    else if(ast->name == "MINUSDIGIT") {
+        auto * child = genExp(ast->children[0], funBuilder);
+        if(child->getType()->isDoubleTy()) return funBuilder.CreateFSub(ConstantFP::get(Type::getDoubleTy(TheContext), 0), child);
+        else return funBuilder.CreateSub(ConstantInt::get(Type::getInt32Ty(TheContext), 0), child);
     }
     else if(ast->name == "AND") {
         return funBuilder.CreateAnd(genExp(ast->children[0], funBuilder), genExp(ast->children[1], funBuilder));
@@ -219,14 +264,6 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOGT(l, r);
         else return funBuilder.CreateICmpSGT(l, r);
     }
-    else if(ast->name == "MINUSDIGIT") {
-        auto * child = genExp(ast->children[0], funBuilder);
-        if(child->getType()->isDoubleTy()) return funBuilder.CreateFSub(ConstantFP::get(Type::getDoubleTy(TheContext), 0), child);
-        else return funBuilder.CreateSub(ConstantInt::get(Type::getInt32Ty(TheContext), 0), child);
-    }
-    else if(ast->name == "LOGICAND") {
-        return globalVariables[ast->children[0]->name];
-    }
     return ConstantInt::get(Type::getInt32Ty(TheContext), 1909);
 }
 
@@ -251,7 +288,6 @@ void genGlobalVar(baseAST *ast) {
             }
 
             Type *arrayType;
-            Value *arrayLen;
             if(type == "int") arrayType = ArrayType::get(Type::getInt32Ty(TheContext), len);
             else if(type == "float") arrayType = ArrayType::get(Type::getDoubleTy(TheContext), len);
             auto *constInit = llvm::ConstantAggregateZero::get(arrayType);
