@@ -2,7 +2,7 @@
   "childCnt": 2,
   "children": [
     {
-      "childCnt": 1,
+      "childCnt": 2,
       "children": [
         {
           "childCnt": 2,
@@ -10,9 +10,9 @@
             {
               "childCnt": 0,
               "children": [],
-              "dataType": 3,
+              "dataType": 2,
               "id": 2,
-              "name": "2 typdef:float",
+              "name": "2 typdef:int",
               "type": 9
             },
             {
@@ -45,6 +45,48 @@
           "id": 6,
           "name": "6 defi",
           "type": 7
+        },
+        {
+          "childCnt": 2,
+          "children": [
+            {
+              "childCnt": 0,
+              "children": [],
+              "dataType": 3,
+              "id": 7,
+              "name": "7 typdef:float",
+              "type": 9
+            },
+            {
+              "childCnt": 2,
+              "children": [
+                {
+                  "childCnt": 0,
+                  "children": [],
+                  "dataType": 0,
+                  "id": 8,
+                  "name": "8 var:c",
+                  "type": 3
+                },
+                {
+                  "childCnt": 0,
+                  "children": [],
+                  "dataType": 0,
+                  "id": 10,
+                  "name": "10 var:d",
+                  "type": 3
+                }
+              ],
+              "dataType": 0,
+              "id": 9,
+              "name": "9 Var_List",
+              "type": 8
+            }
+          ],
+          "dataType": 0,
+          "id": 11,
+          "name": "11 defi",
+          "type": 7
         }
       ],
       "dataType": 0,
@@ -62,8 +104,8 @@
               "childCnt": 0,
               "children": [],
               "dataType": 2,
-              "id": 8,
-              "name": "8 typdef:int",
+              "id": 13,
+              "name": "13 typdef:int",
               "type": 9
             },
             {
@@ -73,12 +115,12 @@
                   "childCnt": 0,
                   "children": [],
                   "dataType": 0,
-                  "id": 9,
-                  "name": "9 Def_List",
+                  "id": 14,
+                  "name": "14 Def_List",
                   "type": 8
                 },
                 {
-                  "childCnt": 4,
+                  "childCnt": 5,
                   "children": [
                     {
                       "childCnt": 2,
@@ -87,12 +129,12 @@
                           "childCnt": 0,
                           "children": [],
                           "dataType": 0,
-                          "id": 15,
-                          "name": "15 formatstr:\"%lf\"",
+                          "id": 23,
+                          "name": "23 formatstr:\"%d %lf\"",
                           "type": 11
                         },
                         {
-                          "childCnt": 1,
+                          "childCnt": 2,
                           "children": [
                             {
                               "childCnt": 1,
@@ -101,26 +143,43 @@
                                   "childCnt": 0,
                                   "children": [],
                                   "dataType": 0,
-                                  "id": 10,
-                                  "name": "10 var:a",
+                                  "id": 15,
+                                  "name": "15 var:a",
                                   "type": 3
                                 }
                               ],
                               "dataType": 0,
-                              "id": 12,
-                              "name": "12 oper:&",
+                              "id": 17,
+                              "name": "17 oper:&",
+                              "type": 2
+                            },
+                            {
+                              "childCnt": 1,
+                              "children": [
+                                {
+                                  "childCnt": 0,
+                                  "children": [],
+                                  "dataType": 0,
+                                  "id": 19,
+                                  "name": "19 var:c",
+                                  "type": 3
+                                }
+                              ],
+                              "dataType": 0,
+                              "id": 21,
+                              "name": "21 oper:&",
                               "type": 2
                             }
                           ],
                           "dataType": 0,
-                          "id": 13,
-                          "name": "13 Args",
+                          "id": 18,
+                          "name": "18 Args",
                           "type": 8
                         }
                       ],
                       "dataType": 0,
-                      "id": 14,
-                      "name": "14 exp:Input_Exp",
+                      "id": 22,
+                      "name": "22 exp:Input_Exp",
                       "type": 10
                     },
                     {
@@ -130,39 +189,31 @@
                           "childCnt": 0,
                           "children": [],
                           "dataType": 0,
-                          "id": 17,
-                          "name": "17 var:b",
+                          "id": 25,
+                          "name": "25 var:b",
                           "type": 3
                         },
                         {
-                          "childCnt": 2,
+                          "childCnt": 1,
                           "children": [
                             {
                               "childCnt": 0,
                               "children": [],
                               "dataType": 0,
-                              "id": 18,
-                              "name": "18 var:a",
+                              "id": 26,
+                              "name": "26 var:a",
                               "type": 3
-                            },
-                            {
-                              "childCnt": 0,
-                              "children": [],
-                              "dataType": 3,
-                              "id": 20,
-                              "name": "20 const:1.100000 DT_float",
-                              "type": 5
                             }
                           ],
                           "dataType": 0,
-                          "id": 22,
-                          "name": "22 oper:-",
+                          "id": 28,
+                          "name": "28 oper:-",
                           "type": 2
                         }
                       ],
                       "dataType": 0,
-                      "id": 23,
-                      "name": "23 exp:ASSIGN",
+                      "id": 29,
+                      "name": "29 exp:ASSIGN",
                       "type": 10
                     },
                     {
@@ -172,8 +223,42 @@
                           "childCnt": 0,
                           "children": [],
                           "dataType": 0,
-                          "id": 28,
-                          "name": "28 formatstr:\"%g %g\"",
+                          "id": 30,
+                          "name": "30 var:d",
+                          "type": 3
+                        },
+                        {
+                          "childCnt": 1,
+                          "children": [
+                            {
+                              "childCnt": 0,
+                              "children": [],
+                              "dataType": 0,
+                              "id": 31,
+                              "name": "31 var:c",
+                              "type": 3
+                            }
+                          ],
+                          "dataType": 0,
+                          "id": 33,
+                          "name": "33 oper:-",
+                          "type": 2
+                        }
+                      ],
+                      "dataType": 0,
+                      "id": 34,
+                      "name": "34 exp:ASSIGN",
+                      "type": 10
+                    },
+                    {
+                      "childCnt": 2,
+                      "children": [
+                        {
+                          "childCnt": 0,
+                          "children": [],
+                          "dataType": 0,
+                          "id": 39,
+                          "name": "39 formatstr:\"%d %g\"",
                           "type": 11
                         },
                         {
@@ -183,28 +268,28 @@
                               "childCnt": 0,
                               "children": [],
                               "dataType": 0,
-                              "id": 24,
-                              "name": "24 var:a",
+                              "id": 35,
+                              "name": "35 var:b",
                               "type": 3
                             },
                             {
                               "childCnt": 0,
                               "children": [],
                               "dataType": 0,
-                              "id": 26,
-                              "name": "26 var:b",
+                              "id": 37,
+                              "name": "37 var:d",
                               "type": 3
                             }
                           ],
                           "dataType": 0,
-                          "id": 25,
-                          "name": "25 Args",
+                          "id": 36,
+                          "name": "36 Args",
                           "type": 8
                         }
                       ],
                       "dataType": 0,
-                      "id": 27,
-                      "name": "27 exp:Output_Exp",
+                      "id": 38,
+                      "name": "38 exp:Output_Exp",
                       "type": 10
                     },
                     {
@@ -214,43 +299,43 @@
                           "childCnt": 0,
                           "children": [],
                           "dataType": 2,
-                          "id": 30,
-                          "name": "30 const:0 DT_integer",
+                          "id": 41,
+                          "name": "41 const:0 DT_integer",
                           "type": 5
                         }
                       ],
                       "dataType": 0,
-                      "id": 31,
-                      "name": "31 exp:return",
+                      "id": 42,
+                      "name": "42 exp:return",
                       "type": 10
                     }
                   ],
                   "dataType": 0,
-                  "id": 16,
-                  "name": "16 Stmt_List",
+                  "id": 24,
+                  "name": "24 Stmt_List",
                   "type": 8
                 }
               ],
               "dataType": 0,
-              "id": 32,
-              "name": "32 CBLOCK",
+              "id": 43,
+              "name": "43 CBLOCK",
               "type": 12
             }
           ],
           "dataType": 0,
-          "id": 33,
-          "name": "33 func:main",
+          "id": 44,
+          "name": "44 func:main",
           "type": 6
         }
       ],
       "dataType": 0,
-      "id": 7,
-      "name": "7 Fun_List",
+      "id": 12,
+      "name": "12 Fun_List",
       "type": 8
     }
   ],
   "dataType": 0,
-  "id": 34,
-  "name": "34 Program",
+  "id": 45,
+  "name": "45 Program",
   "type": 0
 }

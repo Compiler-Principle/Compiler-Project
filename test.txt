@@ -1,8 +1,10 @@
-float a, b;
+int a, b;
+float c, d;
 
 function int main() {
-    cin("%lf", &a);
-    b = a - 1.1;
-    cout("%g %g", a, b);
+    cin("%d %lf", &a, &c);
+    b = -a;
+    d = -c;
+    cout("%d %g", b, d);
     return 0;
 }

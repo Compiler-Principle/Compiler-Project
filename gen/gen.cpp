@@ -10,10 +10,11 @@ map<string, Value *> globalVariables;
 Function *funcPrintf;
 Function *funcScanf;
 
-string printType(Type *type) {
+template <class T>
+string printValue(T *t) {
     string str;
     raw_string_ostream stream(str);
-    type->print(stream);
+    t->print(stream);
     return str;
 }
 
@@ -180,6 +181,29 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         auto * r = genExp(ast->children[1], funBuilder);
         if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy())return funBuilder.CreateFDiv(l, r);
         else return funBuilder.CreateSDiv(l, r);
+    }
+    else if(ast->name == "EQUAL") {
+
+    }
+    else if(ast->name == "LE") {
+
+    }
+    else if(ast->name == "GE") {
+
+    }
+    else if(ast->name == "NE") {
+
+    }
+    else if(ast->name == "LESS") {
+
+    }
+    else if(ast->name == "GREATER") {
+
+    }
+    else if(ast->name == "MINUSDIGIT") {
+        auto * child = genExp(ast->children[0], funBuilder);
+        if(child->getType()->isDoubleTy()) return funBuilder.CreateFSub(ConstantFP::get(Type::getDoubleTy(*TheContext), 0), child);
+        else return funBuilder.CreateSub(ConstantInt::get(Type::getInt32Ty(*TheContext), 0), child);
     }
     else if(ast->name == "LOGICAND") {
         return globalVariables[ast->children[0]->name];
