@@ -1,11 +1,12 @@
 #include "gen.h"
 
-LLVMContext *TheContext = new LLVMContext();
-Module *TheModule = new Module("main", *TheContext);
-IRBuilder<> *Builder = new IRBuilder<>(*TheContext);
+LLVMContext TheContext;
+Module TheModule("main", TheContext);
+IRBuilder<> Builder(TheContext);
 
 map<string, Function *> functions;
 map<string, Value *> globalVariables;
+map<string, vector<int>> globalArray;
 
 Function *funcPrintf;
 Function *funcScanf;
@@ -20,38 +21,38 @@ string printValue(T *t) {
 
 void InitIOFunc() {
     vector<Type *> putsArgs;
-    putsArgs.push_back(Builder->getInt8Ty()->getPointerTo());
+    putsArgs.push_back(Builder.getInt8Ty()->getPointerTo());
     ArrayRef<Type *> argsRef(putsArgs);
 
-    FunctionType *putsType = FunctionType::get(Builder->getInt32Ty(), argsRef, true);
-    funcPrintf = Function::Create(putsType, Function::ExternalLinkage, Twine("printf"), *TheModule);
-    funcScanf = Function::Create(putsType, Function::ExternalLinkage, Twine("__isoc99_scanf"), *TheModule);
+    FunctionType *putsType = FunctionType::get(Builder.getInt32Ty(), argsRef, true);
+    funcPrintf = Function::Create(putsType, Function::ExternalLinkage, Twine("printf"), TheModule);
+    funcScanf = Function::Create(putsType, Function::ExternalLinkage, Twine("__isoc99_scanf"), TheModule);
 }
 
 Type *getType(string type) {
     if(type == "int") {
-        return Type::getInt32Ty(*TheContext);
+        return Type::getInt32Ty(TheContext);
     }
     else if(type == "float") {
-        return Type::getDoubleTy(*TheContext);
+        return Type::getDoubleTy(TheContext);
     }
     else if(type == "void") {
-        return Type::getVoidTy(*TheContext);
+        return Type::getVoidTy(TheContext);
     }
-    return Type::getVoidTy(*TheContext);
+    return Type::getVoidTy(TheContext);
 }
 
 Value *getDefaultValue(string type) {
     if(type == "int") {
-        // return ConstantInt::get(Type::getInt32Ty(*TheContext), 0);
-        // return Builder->CreateAlloca(Type::getInt32Ty(*TheContext));
+        // return ConstantInt::get(Type::getInt32Ty(TheContext), 0);
+        // return Builder.CreateAlloca(Type::getInt32Ty(TheContext));
     }
     else if(type == "float") {
-        // return ConstantFP::get(Type::getFloatTy(*TheContext), 0);
-        // return Builder->CreateAlloca(Type::getFloatTy(*TheContext));
+        // return ConstantFP::get(Type::getFloatTy(TheContext), 0);
+        // return Builder.CreateAlloca(Type::getFloatTy(TheContext));
     }
-    return ConstantInt::get(Type::getInt32Ty(*TheContext), 0);
-    // return Builder->CreateAlloca(Type::getInt32Ty(*TheContext));
+    return ConstantInt::get(Type::getInt32Ty(TheContext), 0);
+    // return Builder.CreateAlloca(Type::getInt32Ty(TheContext));
 }
 
 Function *genPrototype(baseAST *ast) {
@@ -79,7 +80,7 @@ Function *genPrototype(baseAST *ast) {
     }
 
     FunctionType *funcType = FunctionType::get(returnType, funArgs, false);
-    Function *fun = Function::Create(funcType, Function::ExternalLinkage, Twine(ast->name), *TheModule);
+    Function *fun = Function::Create(funcType, Function::ExternalLinkage, Twine(ast->name), TheModule);
 
     functions[ast->name] = fun;
     return fun;
@@ -99,7 +100,7 @@ Function *genFunc(baseAST *ast) {
     }
     
     Function *fun = functions[ast->name];
-    BasicBlock *funBlock = BasicBlock::Create(*TheContext, "entry", fun);
+    BasicBlock *funBlock = BasicBlock::Create(TheContext, "entry", fun);
     IRBuilder<> funBuilder(funBlock);
 
     for(auto stmt : blockAST->children[1]->children) genStmt(stmt, funBuilder);
@@ -134,17 +135,17 @@ void genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         funBuilder.CreateCall(funcPrintf, argsRef);
     }
     else if(ast->name == "return") {
-        if(ast->childCnt == 0) funBuilder.CreateRet(ConstantInt::get(Type::getInt32Ty(*TheContext), 0));
+        if(ast->childCnt == 0) funBuilder.CreateRet(ConstantInt::get(Type::getInt32Ty(TheContext), 0));
         else funBuilder.CreateRet(genExp(ast->children[0], funBuilder));
     }
 }
 
 Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
     if(ast->name == "constint") {
-        return ConstantInt::get(Type::getInt32Ty(*TheContext), ((constNode *) ast)->dvalue.integer);
+        return ConstantInt::get(Type::getInt32Ty(TheContext), ((constNode *) ast)->dvalue.integer);
     }
     else if(ast->name == "constfloat") {
-        return ConstantFP::get(Type::getDoubleTy(*TheContext), ((constNode *) ast)->dvalue.floatt);
+        return ConstantFP::get(Type::getDoubleTy(TheContext), ((constNode *) ast)->dvalue.floatt);
     }
     else if(ast->type == T_var) {
         return funBuilder.CreateLoad(globalVariables[ast->name]);
@@ -220,25 +221,45 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
     }
     else if(ast->name == "MINUSDIGIT") {
         auto * child = genExp(ast->children[0], funBuilder);
-        if(child->getType()->isDoubleTy()) return funBuilder.CreateFSub(ConstantFP::get(Type::getDoubleTy(*TheContext), 0), child);
-        else return funBuilder.CreateSub(ConstantInt::get(Type::getInt32Ty(*TheContext), 0), child);
+        if(child->getType()->isDoubleTy()) return funBuilder.CreateFSub(ConstantFP::get(Type::getDoubleTy(TheContext), 0), child);
+        else return funBuilder.CreateSub(ConstantInt::get(Type::getInt32Ty(TheContext), 0), child);
     }
     else if(ast->name == "LOGICAND") {
         return globalVariables[ast->children[0]->name];
     }
-    return ConstantInt::get(Type::getInt32Ty(*TheContext), 1909);
+    return ConstantInt::get(Type::getInt32Ty(TheContext), 1909);
 }
 
 void genGlobalVar(baseAST *ast) {
     string type = ast->children[0]->name;
     vector<baseAST *> vars = ast->children[1]->children;
     for(auto var : vars) {
-        TheModule->getOrInsertGlobal(var->name, getType(type));
-        auto gVar = TheModule->getGlobalVariable(var->name);
-        gVar->setLinkage(llvm::GlobalValue::CommonLinkage);
-        if(type == "int") gVar->setInitializer(ConstantInt::get(Type::getInt32Ty(*TheContext), 0));
-        else if(type == "float") gVar->setInitializer(ConstantFP::get(Type::getDoubleTy(*TheContext), 0));
-        globalVariables[var->name] = gVar;
+        if(var->childCnt == 0) {
+            TheModule.getOrInsertGlobal(var->name, getType(type));
+            auto gVar = TheModule.getGlobalVariable(var->name);
+            gVar->setLinkage(GlobalValue::CommonLinkage);
+            if(type == "int") gVar->setInitializer(ConstantInt::get(Type::getInt32Ty(TheContext), 0));
+            else if(type == "float") gVar->setInitializer(ConstantFP::get(Type::getDoubleTy(TheContext), 0));
+            globalVariables[var->name] = gVar;
+        }
+        else {
+            vector<int> arrayLen;
+            int len = 1;
+            for(auto child : var->children) {
+                arrayLen.push_back(((constNode *) child)->dvalue.integer);
+                len *= ((constNode *) child)->dvalue.integer;
+            }
+
+            Type *arrayType;
+            Value *arrayLen;
+            if(type == "int") arrayType = ArrayType::get(Type::getInt32Ty(TheContext), len);
+            else if(type == "float") arrayType = ArrayType::get(Type::getDoubleTy(TheContext), len);
+            auto *constInit = llvm::ConstantAggregateZero::get(arrayType);
+            Value *array = new GlobalVariable(TheModule, arrayType, false, GlobalValue::CommonLinkage, constInit, var->name);
+
+            globalVariables[var->name] = array;
+            globalArray[var->name] = arrayLen;
+        }
     }
 }
 
@@ -254,6 +275,6 @@ void genCode(baseAST *ast) {
 void genBC() {
     std::error_code ErrInfo;
     raw_ostream *out = new raw_fd_ostream("main.bc", ErrInfo);
-    WriteBitcodeToFile(*TheModule, *out);
+    WriteBitcodeToFile(TheModule, *out);
     out->flush();
 }
