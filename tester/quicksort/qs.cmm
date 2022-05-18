@@ -1,4 +1,4 @@
-/*hhhh*/
+/*quick sort*/
 int data[1000];
 function void qsort(int l,int r){
     int ll;
