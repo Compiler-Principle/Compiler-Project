@@ -19,7 +19,6 @@ void InitIOFunc();
 void genCode(baseAST *ast);
 void genBC();
 
-void genStmt(baseAST *ast, IRBuilder<> funBuilder);
 Type *getType(string type);
 Value *getDefaultValue(string type);
 Function *genPrototype(baseAST *ast);

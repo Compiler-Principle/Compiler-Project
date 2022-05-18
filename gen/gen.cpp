@@ -148,6 +148,31 @@ void genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         if(ast->childCnt == 0) funBuilder.CreateRet(ConstantInt::get(Type::getInt32Ty(TheContext), 0));
         else funBuilder.CreateRet(genExp(ast->children[0], funBuilder));
     }
+    else if(ast->name == "IF_Stmt") {
+        BasicBlock *labelIfThen = BasicBlock::Create(TheContext, "if.then", funBuilder.GetInsertBlock()->getParent());
+        BasicBlock *labelIfEnd = BasicBlock::Create(TheContext, "if.end", funBuilder.GetInsertBlock()->getParent());
+        funBuilder.CreateCondBr(genExp(ast->children[0], funBuilder), labelIfThen, labelIfEnd);
+        Builder.SetInsertPoint(labelIfThen);
+        for(auto stmt : ast->children[1]->children[1]->children) genStmt(stmt, funBuilder);
+        funBuilder.CreateBr(labelIfEnd);
+        Builder.SetInsertPoint(labelIfEnd);
+    }
+    else if(ast->name == "If_Else_Stmt") {
+        BasicBlock *labelIfThen = BasicBlock::Create(TheContext, "if.then", funBuilder.GetInsertBlock()->getParent());
+        BasicBlock *labelIfElse = BasicBlock::Create(TheContext, "if.else", funBuilder.GetInsertBlock()->getParent());
+        BasicBlock *labelIfEnd = BasicBlock::Create(TheContext, "if.end", funBuilder.GetInsertBlock()->getParent());
+        funBuilder.CreateCondBr(genExp(ast->children[0], funBuilder), labelIfThen, labelIfElse);
+        Builder.SetInsertPoint(labelIfThen);
+        for(auto stmt : ast->children[1]->children[1]->children) genStmt(stmt, funBuilder);
+        funBuilder.CreateBr(labelIfEnd);
+        Builder.SetInsertPoint(labelIfElse);
+        for(auto stmt : ast->children[2]->children[1]->children) genStmt(stmt, funBuilder);
+        funBuilder.CreateBr(labelIfEnd);
+        Builder.SetInsertPoint(labelIfEnd);
+    }
+    else if(ast->name == "While_Stmt") {
+        
+    }
 }
 
 Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {

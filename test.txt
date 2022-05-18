@@ -5,6 +5,11 @@ int e[2][3][4];
 function int main() {
     cin("%d", &e[1][1][2]);
     a = e[1][1][2] + 1;
-    cout("%d %d", a, e[1][1][2]);
+    if(a == 1) {
+        cout("true :: %d %d", a, e[1][1][2]);
+    }
+    else {
+        cout("false :: %d %d", a, e[1][1][2]);
+    }
     return 0;
 }
