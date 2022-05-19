@@ -7,6 +7,8 @@ IRBuilder<> Builder(TheContext);
 map<string, Function *> functions;
 map<string, Value *> globalVariables;
 map<string, vector<int>> globalArray;
+map<Function *, map<string, Value*>> localVariables;
+map<Function *, map<string, vector<int>>> localAray;
 
 Function *funcPrintf;
 Function *funcScanf;
@@ -114,6 +116,16 @@ Function *genFunc(baseAST *ast) {
     BasicBlock *funBlock = BasicBlock::Create(TheContext, "entry", fun);
     IRBuilder<> funBuilder(funBlock);
 
+    Function::arg_iterator iter = fun->arg_begin();
+    if(argAST != nullptr) {
+        for(auto arg : argAST->children) {
+            iter->setName(arg->children[1]->name);
+            localVariables[fun][arg->children[1]->name] = iter;
+            iter++;
+        }
+    }
+
+    for(auto vars : blockAST->children[0]->children) genLocalVar(vars, funBuilder);
     for(auto stmt : blockAST->children[1]->children) genStmt(stmt, funBuilder);
 
     return fun;
@@ -211,6 +223,9 @@ BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         prevEnd = tmp;
         return labelWhileEnd;
     }
+    else if(ast->type == T_expr) {
+        genExp(ast, funBuilder);
+    }
     return nullptr;
 }
 
@@ -255,6 +270,19 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
             Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
             auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
             return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), address);
+        }
+    }
+    else if(ast->type == T_expr) {
+        if(ast->childCnt == 0) {
+            vector<Value *> args;
+            ArrayRef<Value *> argsRef(args);
+            funBuilder.CreateCall(functions[ast->name], argsRef);
+        }
+        else {
+            vector<Value *> args;
+            for(auto child : ast->children[0]->children) args.push_back(genExp(child, funBuilder));
+            ArrayRef<Value *> argsRef(args);
+            funBuilder.CreateCall(functions[ast->name], argsRef);
         }
     }
     else if(ast->name == "MINUSDIGIT") {
@@ -361,6 +389,10 @@ void genGlobalVar(baseAST *ast) {
             globalArray[var->name] = arrayLen;
         }
     }
+}
+
+void genLocalVar(baseAST *ast, IRBuilder<> funBuilder) {
+    // localVariables[fun][arg->children[1]->name] = funBuilder.CreateAlloca(getType(arg->children[0]->name), nullptr, arg->children[1]->name);
 }
 
 void genCode(baseAST *ast) {
