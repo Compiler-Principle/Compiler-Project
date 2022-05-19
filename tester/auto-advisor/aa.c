@@ -6,43 +6,74 @@ int name[105]; // 课程们
 int credit[105]; // 学分
 char prereq[105][MAX_LINE];
 int grade[105];
-
 int courses_len;
 int nextCourses_len = 0;
 
 int parseGrade(char g){
-    if(g == 'A') return 4;
-    else if(g == 'B') return 3;
-    else if(g == 'C') return 2;
-    else if(g == 'D') return 1;
-    else if(g == 'F') return 0;
-    else return -1;
+    int ret;
+    ret = -1;
+    if(g == 65){
+        ret = 4;
+    }
+    if(g == 66){
+        ret = 3;
+    }
+    if(g == 67){
+        ret = 2;
+    }
+    if(g == 68){
+        ret = 1;
+    }
+    if(g == 70){
+        ret =0;
+    }
+    return ret;
 }
 
 int strCount(char s[], char c){
-    int count = 0;
-    for(int i = 0; s[i] != 0; i++){
-        if(s[i] == c) count++;
+    int count, i;
+    i = 0;
+    count = 0;
+
+    while(s[i] != 0){
+        if(s[i] == c){
+            count = count + 1;
+        }
+        i = i + 1;
     }
     return count;
 }
 
 void summary(double gpa, int hAttempt, int hComplete, int cRemain, int courses[]){
+    int i;
+    i = 0;
 
     printf("GPA: %.1f\n", gpa);
     printf("Hours Attempted: %d\n", hAttempt);
     printf("Hours Completed: %d\n", hComplete);
     printf("Credits Remaining: %d\n", cRemain);
     printf("\nPossible Courses to Take Next\n");
-    for(int i = 0; i < nextCourses_len; i++){
+    while(i < nextCourses_len){
         printf("  c%d\n", courses[i]);
+        i++;
     }
-    if(nextCourses_len == 0 && cRemain == 0) printf("  None - Congratulations!\n");
+
+//    if(nextCourses_len == 0 && cRemain == 0) printf("  None - Congratulations!\n");
+    if(nextCourses_len == 0){
+        if(cRemain == 0){
+            printf("  None - Congratulations!\n");
+        }
+    }
 }
 
 int strContains(char basicString[], char s) {
-    for(int i = 0; basicString[i] != 0; i++){
-        if(basicString[i] == s) return 1;
+    int i;
+    i = 0;
+    while(basicString[i] != 0){
+        if(basicString[i] == s){
+            return 1;
+        }
+        i = i + 1;
     }
     return 0;
 }
@@ -100,29 +131,34 @@ int a2i(const char *p, int start){
 void substr(char s[], char sub[], int start, int len){
     int i;
     i = 0;
-    for(; i < len; i++){
+    while(i < len){
         sub[i] = s[start + i];
+        i = i + 1;
     }
     sub[i] = 0;
 }
 
 int lineSplit(char input[], char deli, char res[][MAX_LINE]){
-    int len, i, cnt;
-//    len = 0;
-//    i = 0;
-    cnt = 0;
-    int deli_count = strCount(input, deli);
-    int delimiter_idx[100] = {0}; // 至少deli_count+2个元素
-    int ii = 1;
+    int len, i, cnt, deli_count, ii;
+    int delimiter_idx[100];
     char tmp[MAX_LINE];
+
+    deli_count = strCount(input, deli);
+    ii = 1;
+    cnt = 0;
+
     delimiter_idx[deli_count+1] = strlen(input);
-    for(i = 0; i < strlen(input); i++){
+    i = 0;
+    while(i < strlen(input)){
         if(input[i] == deli){
             delimiter_idx[ii] = i;
-            ii++;
+            ii = ii + 1;
         }
+        i = i + 1;
     }
-    for(i = 0; i < deli_count+1; i++){
+
+    i= 0;
+    while( i < deli_count+1){
         if(i == 0){
             substr(input, tmp, delimiter_idx[i], delimiter_idx[i+1]-delimiter_idx[i]);
         }
@@ -130,7 +166,8 @@ int lineSplit(char input[], char deli, char res[][MAX_LINE]){
             substr(input, tmp, delimiter_idx[i]+1, delimiter_idx[i+1]-delimiter_idx[i]-1);
         }
         strcpy(res[cnt], tmp);
-        cnt++;
+        cnt = cnt + 1;
+        i = i + 1;
     }
     return cnt;
 
@@ -138,54 +175,57 @@ int lineSplit(char input[], char deli, char res[][MAX_LINE]){
 
 int main(){
     int course_cnt;
-    course_cnt = 0;
     char line[MAX_LINE];
     char t[105][MAX_LINE];
-    int line_slice;
-    while(scanf("%s", line) != EOF){
-        line_slice = lineSplit(line, '|', t);
-        if(line_slice == 1) break;
-        name[course_cnt] = a2i(t[0], 1);
-        credit[course_cnt] = a2i(t[1], 0);
-        strcpy(prereq[course_cnt], t[2]);
-        grade[course_cnt] = parseGrade(t[3][0]);
-        course_cnt++;
-    }
-    int hAttempt = 0; // 尝试学分
-    int hComplete = 0; // 已修学分
-    int cRemain = 0;
-    float credit_score = 0.0;
+    int line_slice, hAttempt, hComplete, cRemain;
+    float credit_score;
 
     int nextCourse[105];
     int canTake;
     int k;
     int found;
+    int i;
+    hAttempt = 0; // 尝试学分
+    hComplete = 0; // 已修学分
+    cRemain = 0;
+    credit_score = 0.0;
+    course_cnt = 0;
 
-    for(int i = 0; i < course_cnt; i++){
+
+    while(scanf("%s", line) != EOF){
+        line_slice = lineSplit(line, '|', t);
+        if(line_slice == 1){
+            break;
+        }
+        name[course_cnt] = a2i(t[0], 1);
+        credit[course_cnt] = a2i(t[1], 0);
+        strcpy(prereq[course_cnt], t[2]);
+        grade[course_cnt] = parseGrade(t[3][0]);
+        course_cnt = course_cnt + 1;
+    }
+    i = 0;
+    while( i < course_cnt){
         if(grade[i] == -1){
             // -1 代表未修过
-            cRemain += credit[i];
+            cRemain = cRemain + credit[i];
         }
         else if(grade[i] == 0){
             // 0 代表Fail
-            credit_score += 0.0;
-            hAttempt += credit[i];
-            cRemain += credit[i];
+//            credit_score += 0.0;
+            hAttempt = hAttempt + credit[i];
+            cRemain = cRemain + credit[i];
 
         }
         else{
             // 正常得分
-            credit_score += grade[i] * credit[i];
-            hAttempt += credit[i];
-            hComplete += credit[i];
+            credit_score = credit_score + grade[i] * credit[i];
+            hAttempt = hAttempt + credit[i];
+            hComplete = hComplete + credit[i];
         }
+        i = i + 1;
     }
-
+    i = 0;
     for(int i = 0; i < course_cnt; i++){
-        if(name[i] == 76){
-            int a = 0;
-        }
-
         // 判断当前课程是否能够被推荐
         if(grade[i] == -1 || grade[i] == 0){
             // 未修过 或者已经挂科了
@@ -280,8 +320,15 @@ int main(){
             }
         }
     }
+    if(hAttempt==0){
+        summary( 0.0 , hAttempt, hComplete, cRemain, nextCourse);
 
-    summary(hAttempt==0 ? 0.0 : credit_score/hAttempt, hAttempt, hComplete, cRemain, nextCourse);
+    }
+    else{
+        summary(credit_score/hAttempt, hAttempt, hComplete, cRemain, nextCourse);
+
+    }
+
 
     return 0;
 }
