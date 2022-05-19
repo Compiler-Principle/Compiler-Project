@@ -26,7 +26,7 @@ function int parseGrade(int g){
     return ret;
 }
 
-function int strCount(int s[], int c){
+function int strCount(int s[400], int c){
     int count, i;
     i = 0;
     count = 0;
@@ -40,7 +40,7 @@ function int strCount(int s[], int c){
     return count;
 }
 
-function void summary(double gpa, int hAttempt, int hComplete, int cRemain, int courses[]){
+function void summary(float gpa, int hAttempt, int hComplete, int cRemain, int courses[400]){
     int i;
     i = 0;
 
@@ -61,7 +61,7 @@ function void summary(double gpa, int hAttempt, int hComplete, int cRemain, int 
     return;
 }
 
-function int strContains(int basicString[], int s) {
+function int strContains(int basicString[400], int s) {
     int i;
     i = 0;
     while(basicString[i] != 0){
@@ -73,7 +73,7 @@ function int strContains(int basicString[], int s) {
     return 0;
 }
 
-function int a2i(int p[], int start){
+function int a2i(int p[400], int start){
     int cyc, ret;
     int i, t;
     i = 0;
@@ -95,7 +95,7 @@ function int a2i(int p[], int start){
     return ret;
 }
 
-function int strlen(int s[]){
+function int strlen(int s[400]){
     int i;
     i = 0;
     while(s[i] != 0){
@@ -104,7 +104,7 @@ function int strlen(int s[]){
     return i;
 }
 
-function void memset(int i[], int target, int len){
+function void memset(int i[400], int target, int len){
     int j;
     j = 0;
     while( j < len){
@@ -114,7 +114,7 @@ function void memset(int i[], int target, int len){
     return;
 }
 
-function void strcpy(int dest[], int src[]){
+function void strcpy(int dest[400], int src[400]){
     int i;
     i = 0;
     while(src[i] != 0){
@@ -125,7 +125,7 @@ function void strcpy(int dest[], int src[]){
     return;
 }
 
-function void substr(int s[], int sub[], int start, int len){
+function void substr(int s[400], int sub[400], int start, int len){
     int i;
     i = 0;
     while(i < len){
@@ -136,7 +136,7 @@ function void substr(int s[], int sub[], int start, int len){
     return;
 }
 
-function int lineSplit(int input[], int deli, int res[][400]){
+function int lineSplit(int input[400], int deli, int res[400][400]){
     int len, i, cnt, deli_count, ii;
     int delimiter_idx[100];
     int tmp[400];
@@ -207,117 +207,6 @@ function int main(){
     nextCourses_len = 0;
 
 
-    while(1){
-        cin("%s", line);
-        line_slice = lineSplit(line, 124, t);
-        if(line_slice == 1){
-            break;
-        }
-        name[course_cnt] = a2i(t[0], 1);
-        credit[course_cnt] = a2i(t[1], 0);
-        strcpy(prereq[course_cnt], t[2]);
-        grade[course_cnt] = parseGrade(t[3][0]);
-        course_cnt = course_cnt + 1;
-    }
-    i = 0;
-    while( i < course_cnt){
-        if(grade[i] == -1){
-            cRemain = cRemain + credit[i];
-        }
-        else if(grade[i] == 0){
-            hAttempt = hAttempt + credit[i];
-            cRemain = cRemain + credit[i];
 
-        }
-        else{
-            credit_score = credit_score + grade[i] * credit[i];
-            hAttempt = hAttempt + credit[i];
-            hComplete = hComplete + credit[i];
-        }
-        i = i + 1;
-    }
-    i = 0;
-    ii = 0;
-    while(ii < course_cnt){
-        if(grade[ii] == -1 || grade[ii] == 0){
-            if(strlen(prereq[ii]) == 0){
-                nextCourse[nextCourses_len] = name[ii];
-                nextCourses_len++;
-                ii = ii + 1;
-                continue;
-            }
-            else{
-                canTake = 1;
-
-
-                if(strContains(prereq[ii], ';') == 1){
-                    valid_pre_strs_len = lineSplit(prereq[ii], ';', valid_pre_strs);
-                }
-                else{
-                    strcpy(valid_pre_strs[valid_pre_strs_len], prereq[ii]);
-                    valid_pre_strs_len = valid_pre_strs_len + 1;
-                }
-                pres_id = 0;
-                while(pres_id < valid_pre_strs_len){
-
-                    if(strContains(valid_pre_strs[pres_id], ',') == 1){
-                        pre_strs_len = lineSplit(valid_pre_strs[pres_id], ',', pre_strs);
-                    }
-                    else{
-                        strcpy(pre_strs[pre_strs_len], valid_pre_strs[pres_id]);
-                        pre_strs_len = pre_strs_len + 1;
-                    }
-
-                    canTake = 1;
-                    l = 0;
-                    while(l < pre_strs_len){
-                        this_course = a2i(pre_strs[l], 1);
-                        found = 0;
-                        k = 0;
-                        while( k < course_cnt){
-                            if(name[k] == this_course){
-                                found = 1;
-                                if(grade[k] == -1 || grade[k] == 0){
-                                    canTake = 0;
-                                    break;
-                                }
-                            }
-                            k = k + 1;
-                        }
-                        if (found == 0){
-                            canTake = 0;
-                            break;
-                        }
-                        if(canTake == 0){
-                            break;
-                        }
-                        l = l + 1;
-                    }
-
-                    if(canTake == 1){
-                        nextCourse[nextCourses_len] = name[ii];
-                        nextCourses_len = nextCourses_len + 1;
-                        break;
-                    }
-                    memset(pre_strs, 0, sizeof(pre_strs));
-                    pre_strs_len = 0;
-                    pres_id = pres_id + 1;
-
-                }
-                memset(valid_pre_strs, 0, sizeof(valid_pre_strs));
-                valid_pre_strs_len = 0;
-
-            }
-        }
-        ii = ii + 1;
-    }
-    if(hAttempt==0){
-        summary( 0.0 , hAttempt, hComplete, cRemain, nextCourse);
-
-    }
-    else{
-        summary(credit_score/hAttempt, hAttempt, hComplete, cRemain, nextCourse);
-
-    }
     return 0;
 }
