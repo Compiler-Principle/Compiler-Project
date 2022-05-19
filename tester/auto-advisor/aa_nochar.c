@@ -1,14 +1,12 @@
-#include<stdio.h>
-#include<ctype.h>
-#define MAX_LINE 400
-int name[105]; // 课程们
-int credit[105]; // 学分
-char prereq[105][MAX_LINE];
+#include <stdio.h>
+int name[105];
+int credit[105];
+char prereq[105][400];
 int grade[105];
 int courses_len;
-int nextCourses_len = 0;
+int nextCourses_len;
 
-int parseGrade(char g){
+int parseGrade(int g){
     int ret;
     ret = -1;
     if(g == 65){
@@ -29,7 +27,7 @@ int parseGrade(char g){
     return ret;
 }
 
-int strCount(char s[], char c){
+int strCount(char s[], int c){
     int count, i;
     i = 0;
     count = 0;
@@ -63,7 +61,7 @@ void summary(double gpa, int hAttempt, int hComplete, int cRemain, int courses[]
     }
 }
 
-int strContains(char basicString[], char s) {
+int strContains(char basicString[], int s) {
     int i;
     i = 0;
     while(basicString[i] != 0){
@@ -135,10 +133,10 @@ void substr(char s[], char sub[], int start, int len){
     sub[i] = 0;
 }
 
-int lineSplit(char input[], char deli, char res[][MAX_LINE]){
+int lineSplit(char input[], char deli, char res[][400]){
     int len, i, cnt, deli_count, ii;
     int delimiter_idx[100];
-    char tmp[MAX_LINE];
+    char tmp[400];
 
     deli_count = strCount(input, deli);
     ii = 1;
@@ -171,9 +169,10 @@ int lineSplit(char input[], char deli, char res[][MAX_LINE]){
 }
 
 int main(){
+
     int course_cnt;
-    char line[MAX_LINE];
-    char t[105][MAX_LINE];
+    char line[400];
+    char t[105][400];
     int line_slice, hAttempt, hComplete, cRemain;
     float credit_score;
 
@@ -189,9 +188,9 @@ int main(){
 
 
 
-    char valid_pre_strs[105][MAX_LINE];
+    char valid_pre_strs[105][400];
     int valid_pre_strs_len;
-    char pre_strs[105][MAX_LINE];
+    char pre_strs[105][400];
     int pre_strs_len;
 
 
@@ -202,6 +201,7 @@ int main(){
     course_cnt = 0;
     valid_pre_strs_len = 0;
     pre_strs_len = 0;
+    nextCourses_len = 0;
 
 
     while(scanf("%s", line) != EOF){
