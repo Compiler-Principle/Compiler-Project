@@ -55,11 +55,12 @@ Value *getDefaultValue(string type) {
     // return Builder.CreateAlloca(Type::getInt32Ty(TheContext));
 }
 
-int getOffset(vector<int> array, vector<int> offset) {
-    int o = 0;
+Value *getOffset(vector<int> array, vector<Value *> offset, IRBuilder<> funBuilder) {
+    Value *o = ConstantInt::get(Type::getInt32Ty(TheContext), 0);
     int base = 1;
     for(int i = array.size() - 1;i >= 0;i--) {
-        o += base * offset[i];
+        Value *tmp = funBuilder.CreateMul(ConstantInt::get(Type::getInt32Ty(TheContext), base), offset[i]);
+        o = funBuilder.CreateAdd(tmp, o);
         base *= array[i];
     }
     return o;
@@ -118,13 +119,23 @@ Function *genFunc(baseAST *ast) {
     return fun;
 }
 
-void genStmt(baseAST *ast, IRBuilder<> funBuilder) {
+BasicBlock *prevEnd = nullptr;
+
+BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder) {
     if(ast->name == "ASSIGN") {
         genExp(ast, funBuilder);
     }
     else if(ast->name == "Input_Exp") {
         vector<Value *> args;
-        args.push_back(funBuilder.CreateGlobalStringPtr(ast->children[0]->name.substr(1, ast->children[0]->name.length() - 2)));
+        string formatstr = "";
+        for(int i = 1;i < ast->children[0]->name.length() - 1;i++) {
+            if(ast->children[0]->name[i] == '\\' && ast->children[0]->name[i + 1] == 'n') {
+                formatstr += '\n';
+                i++;
+            }
+            else formatstr += ast->children[0]->name[i];
+        }
+        args.push_back(funBuilder.CreateGlobalStringPtr(formatstr));
         for(int i = 0;i < ast->children[1]->childCnt;i++) {
             auto arg = genExp(ast->children[1]->children[i], funBuilder);
             args.push_back(arg);
@@ -135,10 +146,20 @@ void genStmt(baseAST *ast, IRBuilder<> funBuilder) {
     }
     else if(ast->name == "Output_Exp") {
         vector<Value *> args;
-        args.push_back(funBuilder.CreateGlobalStringPtr(ast->children[0]->name.substr(1, ast->children[0]->name.length() - 2)));
-        for(int i = 0;i < ast->children[1]->childCnt;i++) {
-            auto arg = genExp(ast->children[1]->children[i], funBuilder);
-            args.push_back(arg);
+        string formatstr = "";
+        for(int i = 1;i < ast->children[0]->name.length() - 1;i++) {
+            if(ast->children[0]->name[i] == '\\' && ast->children[0]->name[i + 1] == 'n') {
+                formatstr += '\n';
+                i++;
+            }
+            else formatstr += ast->children[0]->name[i];
+        }
+        args.push_back(funBuilder.CreateGlobalStringPtr(formatstr));
+        if(ast->childCnt > 1) {
+            for(int i = 0;i < ast->children[1]->childCnt;i++) {
+                auto arg = genExp(ast->children[1]->children[i], funBuilder);
+                args.push_back(arg);
+            }
         }
         ArrayRef<Value *> argsRef(args);
 
@@ -158,22 +179,28 @@ void genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         Builder.SetInsertPoint(labelIfEnd);
     }
     else if(ast->name == "If_Else_Stmt") {
-        BasicBlock *labelIfThen = BasicBlock::Create(TheContext, "if.then", funBuilder.GetInsertBlock()->getParent());
-        BasicBlock *labelIfElse = BasicBlock::Create(TheContext, "if.else", funBuilder.GetInsertBlock()->getParent());
-        BasicBlock *labelIfEnd = BasicBlock::Create(TheContext, "if.end", funBuilder.GetInsertBlock()->getParent());
+        BasicBlock *labelIfThen = BasicBlock::Create(TheContext, "if.then", funBuilder.GetInsertBlock()->getParent(), prevEnd);
+        BasicBlock *labelIfElse = BasicBlock::Create(TheContext, "if.else", funBuilder.GetInsertBlock()->getParent(), prevEnd);
+        BasicBlock *labelIfEnd = BasicBlock::Create(TheContext, "if.end", funBuilder.GetInsertBlock()->getParent(), prevEnd);
         funBuilder.CreateCondBr(genExp(ast->children[0], funBuilder), labelIfThen, labelIfElse);
         Builder.SetInsertPoint(labelIfThen);
+        BasicBlock *tmp = prevEnd;
+        prevEnd = labelIfElse;
         for(auto stmt : ast->children[1]->children[1]->children) genStmt(stmt, funBuilder);
         funBuilder.CreateBr(labelIfEnd);
         Builder.SetInsertPoint(labelIfElse);
+        prevEnd = labelIfEnd;
         for(auto stmt : ast->children[2]->children[1]->children) genStmt(stmt, funBuilder);
         funBuilder.CreateBr(labelIfEnd);
         Builder.SetInsertPoint(labelIfEnd);
+        prevEnd = tmp;
     }
     else if(ast->name == "While_Stmt") {
-        BasicBlock *labelWhileCond = BasicBlock::Create(TheContext, "wihle.cond", funBuilder.GetInsertBlock()->getParent());
-        BasicBlock *labelWhileBody = BasicBlock::Create(TheContext, "while.body", funBuilder.GetInsertBlock()->getParent());
-        BasicBlock *labelWhileEnd = BasicBlock::Create(TheContext, "while.end", funBuilder.GetInsertBlock()->getParent());
+        BasicBlock *labelWhileCond = BasicBlock::Create(TheContext, "wihle.cond", funBuilder.GetInsertBlock()->getParent(), prevEnd);
+        BasicBlock *labelWhileBody = BasicBlock::Create(TheContext, "while.body", funBuilder.GetInsertBlock()->getParent(), prevEnd);
+        BasicBlock *labelWhileEnd = BasicBlock::Create(TheContext, "while.end", funBuilder.GetInsertBlock()->getParent(), prevEnd);
+        BasicBlock *tmp = prevEnd;
+        prevEnd = labelWhileEnd;
         funBuilder.CreateBr(labelWhileCond);
         Builder.SetInsertPoint(labelWhileCond);
         funBuilder.CreateCondBr(genExp(ast->children[0], funBuilder), labelWhileBody, labelWhileEnd);
@@ -181,7 +208,10 @@ void genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         for(auto stmt : ast->children[1]->children[1]->children) genStmt(stmt, funBuilder);
         funBuilder.CreateBr(labelWhileCond);
         Builder.SetInsertPoint(labelWhileEnd);
+        prevEnd = tmp;
+        return labelWhileEnd;
     }
+    return nullptr;
 }
 
 Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
@@ -195,10 +225,10 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         if(ast->childCnt == 0)
             return funBuilder.CreateLoad(globalVariables[ast->name]);
         else {
-            vector<int> offsets;
-            for(auto child : ast->children) offsets.push_back(((constNode *) child)->dvalue.integer);
-            int offset = getOffset(globalArray[ast->name], offsets);
-            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), ConstantInt::get(Type::getInt32Ty(TheContext), offset)};
+            vector<Value *> offsets;
+            for(auto child : ast->children) offsets.push_back(genExp(child, funBuilder));
+            Value *offset = getOffset(globalArray[ast->name], offsets, funBuilder);
+            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
             auto *address = funBuilder.CreateGEP(globalVariables[ast->name], idxs);
             return funBuilder.CreateLoad(address);
         }
@@ -207,10 +237,10 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         if(ast->children[0]->childCnt == 0)
             return globalVariables[ast->children[0]->name];
         else {
-            vector<int> offsets;
-            for(auto child : ast->children[0]->children) offsets.push_back(((constNode *) child)->dvalue.integer);
-            int offset = getOffset(globalArray[ast->children[0]->name], offsets);
-            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), ConstantInt::get(Type::getInt32Ty(TheContext), offset)};
+            vector<Value *> offsets;
+            for(auto child : ast->children[0]->children) offsets.push_back(genExp(child, funBuilder));
+            Value *offset = getOffset(globalArray[ast->children[0]->name], offsets, funBuilder);
+            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
             auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
             return address;
         }
@@ -219,10 +249,10 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         if(ast->children[0]->childCnt == 0)
             return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), globalVariables[ast->children[0]->name]);
         else {
-            vector<int> offsets;
-            for(auto child : ast->children[0]->children) offsets.push_back(((constNode *) child)->dvalue.integer);
-            int offset = getOffset(globalArray[ast->children[0]->name], offsets);
-            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), ConstantInt::get(Type::getInt32Ty(TheContext), offset)};
+            vector<Value *> offsets;
+            for(auto child : ast->children[0]->children) offsets.push_back(genExp(child, funBuilder));
+            Value *offset = getOffset(globalArray[ast->children[0]->name], offsets, funBuilder);
+            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
             auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
             return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), address);
         }

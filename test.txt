@@ -1,12 +1,78 @@
-int i, sum;
+int a[25][25];
+int b[25][25];
+int c[25][25];
+int ma;
+int na;
+int mb;
+int nb;
+int i;
+int j;
+int k;
 
 function int main() {
+    cin("%d %d", &ma, &na);
+
     i = 0;
-    sum = 0;
-    while(i <= 100) {
-        sum = sum + i;
+    while(i < ma) {
+        j = 0;
+        while(j < na) {
+            cin("%d", &a[i][j]);
+            j = j + 1;
+        }
         i = i + 1;
     }
-    cout("%d", sum);
+
+    cin("%d %d", &mb, &nb);
+
+    i = 0;
+    while(i < mb) {
+        j = 0;
+        while(j < nb) {
+            cin("%d", &b[i][j]);
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    if(na != mb) {
+        cout("Incompatible Dimensions\n");
+    }
+    else {
+        i = 0;
+        while(i < ma) {
+            j = 0;
+            while(j < nb) {
+                c[i][j] = 0;
+                j = j + 1;
+            }
+            i = i + 1;
+        }
+
+        i = 0;
+        while(i < ma) {
+            j = 0;
+            while(j < nb) {
+                k = 0;
+                while(k < na) {
+                    c[i][j] = c[i][j] + a[i][k] * b[k][j];
+                    k = k + 1;
+                }
+                j = j + 1;
+            }
+            i = i + 1;
+        }
+
+        i = 0;
+        while(i < ma) {
+            j = 0;
+            while(j < nb) {
+                cout("%10d", c[i][j]);
+                j = j + 1;
+            }
+            cout("\n");
+            i = i + 1;
+        }
+    }
+
     return 0;
 }
