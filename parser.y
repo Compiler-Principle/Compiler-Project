@@ -102,6 +102,8 @@ Stmt : Exp SEMI{$$=$1;}
      | While_Stmt{$$=$1;}
      | Input_Exp SEMI {$$=$1;}
      | Output_Exp SEMI {$$=$1;}
+     | BREAK SEMI{$$=new baseAST(AST_Type::T_expr,"break");}
+     | CONTINUE SEMI{$$=new baseAST(AST_Type::T_expr,"continue");}
      ;
 
 IF_Stmt : IF LP Exp RP CBlock{$$=new baseAST(AST_Type::T_expr,"IF_Stmt");$$->Insert($3);$$->Insert($5);}
