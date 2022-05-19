@@ -207,6 +207,51 @@ function int main(){
     nextCourses_len = 0;
 
 
+    while(1){
+        cin("%s", line);
+        line_slice = lineSplit(line, 124, t);
+        if(line_slice == 1){
+            break;
+        }
+        name[course_cnt] = a2i(t[0], 1);
+        credit[course_cnt] = a2i(t[1], 0);
+        strcpy(prereq[course_cnt], t[2]);
+        grade[course_cnt] = parseGrade(t[3][0]);
+        course_cnt = course_cnt + 1;
+    }
+    i = 0;
+    while( i < course_cnt){
+        if(grade[i] == -1){
+            cRemain = cRemain + credit[i];
+        }
+        else{
+            if(grade[i] == 0){
+                hAttempt = hAttempt + credit[i];
+                cRemain = cRemain + credit[i];
+
+            }
+            else{
+                credit_score = credit_score + grade[i] * credit[i];
+                hAttempt = hAttempt + credit[i];
+                hComplete = hComplete + credit[i];
+            }
+        }
+        i = i + 1;
+    }
+    i = 0;
+    ii = 0;
+    while(ii < course_cnt){
+        if(grade[ii] == -1 || grade[ii] == 0){
+            if(strlen(prereq[ii]) == 0){
+                nextCourse[nextCourses_len] = name[ii];
+                nextCourses_len = nextCourses_len + 1;
+                ii = ii + 1;
+                continue;
+            }
+
+        }
+        ii = ii + 1;
+    }
 
     return 0;
 }

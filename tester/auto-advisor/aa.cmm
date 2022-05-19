@@ -244,7 +244,7 @@ function int main(){
         if(grade[ii] == -1 || grade[ii] == 0){
             if(strlen(prereq[ii]) == 0){
                 nextCourse[nextCourses_len] = name[ii];
-                nextCourses_len++;
+                nextCourses_len = nextCourses_len + 1;
                 ii = ii + 1;
                 continue;
             }
@@ -301,12 +301,12 @@ function int main(){
                         nextCourses_len = nextCourses_len + 1;
                         break;
                     }
-                    memset(pre_strs, 0, sizeof(pre_strs));
+                    memset(pre_strs, 0, 42000);
                     pre_strs_len = 0;
                     pres_id = pres_id + 1;
 
                 }
-                memset(valid_pre_strs, 0, sizeof(valid_pre_strs));
+                memset(valid_pre_strs, 0, 42000);
                 valid_pre_strs_len = 0;
 
             }
