@@ -224,15 +224,17 @@ function int main(){
         if(grade[i] == -1){
             cRemain = cRemain + credit[i];
         }
-        else if(grade[i] == 0){
-            hAttempt = hAttempt + credit[i];
-            cRemain = cRemain + credit[i];
-
-        }
         else{
-            credit_score = credit_score + grade[i] * credit[i];
-            hAttempt = hAttempt + credit[i];
-            hComplete = hComplete + credit[i];
+            if(grade[i] == 0){
+                hAttempt = hAttempt + credit[i];
+                cRemain = cRemain + credit[i];
+
+            }
+            else{
+                credit_score = credit_score + grade[i] * credit[i];
+                hAttempt = hAttempt + credit[i];
+                hComplete = hComplete + credit[i];
+            }
         }
         i = i + 1;
     }
@@ -317,7 +319,6 @@ function int main(){
     }
     else{
         summary(credit_score/hAttempt, hAttempt, hComplete, cRemain, nextCourse);
-
     }
     return 0;
 }
