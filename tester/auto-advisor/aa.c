@@ -1,5 +1,4 @@
 #include<stdio.h>
-#include<string.h>
 #include<ctype.h>
 #define MAX_LINE 400
 int name[105]; // 课程们
@@ -78,55 +77,55 @@ int strContains(char basicString[], char s) {
     return 0;
 }
 
-int a2i(const char *p, int start){
-    int cyc, ret, sign;
-    int t;
+int a2i(char p[], int start){
+    int cyc, ret;
+    int i, t;
+    i = 0;
     t = 0;
-
-    while(start--){
-        p++;
+    while(i < start){
+        t++;
+        start--;
     }
-    cyc = (int)*(p++);
-    sign = cyc;
-    if (cyc == '-' || cyc == '+')
-        cyc = (int)*(p++);
-
+    cyc = (int)p[t++];
+//    t = t + 1;
     ret = 0;
 
     while (isdigit(cyc)) {
         ret = 10 * ret + (cyc - '0');
-        cyc = (int)*(p++);
+        cyc = (int)p[t++];
+//        t = t + 1;
     }
 
-    return sign == '-' ? -ret : ret;
+    return ret;
 }
 
-//int strlen(char s[]){
-//    int i;
-//    i = 0;
-//    while(s[i] != 0){
-//        i++;
-//    }
-//    return i;
-//}
+int strlen(char s[]){
+    int i;
+    i = 0;
+    while(s[i] != 0){
+        i = i + 1;
+    }
+    return i;
+}
 
-//void memset(char i[], char target, int len){
-//    int j;
-//    j = 0;
-//    for(; j < len; j++){
-//        i[j] = target;
-//    }
-//}
+void memset(char i[], char target, int len){
+    int j;
+    j = 0;
+    while( j < len){
+        i[j] = target;
+        j = j + 1;
+    }
+}
 
-//void strcpy(char dest[], char src[]){
-//    int i;
-//    i = 0;
-//    while(src[i] != 0){
-//        dest[i] = src[i];
-//        i++;
-//    }
-//    dest[i] = 0;
-//}
+void strcpy(char dest[], char src[]){
+    int i;
+    i = 0;
+    while(src[i] != 0){
+        dest[i] = src[i];
+        i = i + 1;
+    }
+    dest[i] = 0;
+}
 
 void substr(char s[], char sub[], int start, int len){
     int i;
@@ -182,9 +181,15 @@ int main(){
 
     int nextCourse[105];
     int canTake;
-    int k;
     int found;
-    int i;
+    int i, ii;
+
+
+
+    int pres_id;
+    int l, k, this_course;
+
+
     hAttempt = 0; // 尝试学分
     hComplete = 0; // 已修学分
     cRemain = 0;
@@ -225,14 +230,16 @@ int main(){
         i = i + 1;
     }
     i = 0;
-    for(int i = 0; i < course_cnt; i++){
+    ii = 0;
+    while(ii < course_cnt){
         // 判断当前课程是否能够被推荐
-        if(grade[i] == -1 || grade[i] == 0){
+        if(grade[ii] == -1 || grade[ii] == 0){
             // 未修过 或者已经挂科了
-            if(strlen(prereq[i]) == 0){
+            if(strlen(prereq[ii]) == 0){
                 // 没有先修课程
-                nextCourse[nextCourses_len] = name[i];
+                nextCourse[nextCourses_len] = name[ii];
                 nextCourses_len++;
+                ii = ii + 1;
                 continue;
             }
             else{
@@ -252,37 +259,36 @@ int main(){
                 int pre_strs_len = 0;
                 // 3
 
-                if(strContains(prereq[i], ';')){
+                if(strContains(prereq[ii], ';') == 1){
 //                    valid_pre_strs = lineSplit(prereq[i], ";");
-                    valid_pre_strs_len = lineSplit(prereq[i], ';', valid_pre_strs);
+                    valid_pre_strs_len = lineSplit(prereq[ii], ';', valid_pre_strs);
                 }
                 else{
-                    strcpy(valid_pre_strs[valid_pre_strs_len], prereq[i]);
-                    valid_pre_strs_len++;
-//                    valid_pre_strs[valid_pre_strs_len] = prereq[i];
+                    strcpy(valid_pre_strs[valid_pre_strs_len], prereq[ii]);
+                    valid_pre_strs_len = valid_pre_strs_len + 1;
                 }
+                pres_id = 0;
+                while(pres_id < valid_pre_strs_len){
 
-                for(int pres_id = 0; pres_id < valid_pre_strs_len; pres_id++){
-
-                    if(strContains(valid_pre_strs[pres_id], ',')){
+                    if(strContains(valid_pre_strs[pres_id], ',') == 1){
                         // 有多个先修课程
-//                        pre_strs = lineSplit(valid_pre_strs[k], ",");
                         pre_strs_len = lineSplit(valid_pre_strs[pres_id], ',', pre_strs);
                     }
                     else{
                         strcpy(pre_strs[pre_strs_len], valid_pre_strs[pres_id]);
-//                        pre_strs[pre_strs_len] = valid_pre_strs[k];
-                        pre_strs_len++;
+                        pre_strs_len = pre_strs_len + 1;
                     }
 
                     // 如果本个先修课程的要求都满足了，那么就可以推荐
                     canTake = 1;
                     // 接下来检测某个要求中的每一门课
-                    for(int l = 0; l < pre_strs_len; l++){
-                        int this_course = a2i(pre_strs[l], 1);
+                    l = 0;
+                    while( l < pre_strs_len){
+                        this_course = a2i(pre_strs[l], 1);
                         // 对某个this_course 需要检测在列表中的状态
                         found = 0;
-                        for(k = 0; k < course_cnt; k++){
+                        k = 0;
+                        while( k < course_cnt){
                             if(name[k] == this_course){
                                 found = 1;
                                 if(grade[k] == -1 || grade[k] == 0){
@@ -292,25 +298,28 @@ int main(){
                                     break;
                                 }
                             }
+                            k = k + 1;
                         }
-                        if (!found){
+                        if (found == 0){
                             // 如果在cnt这么中没有找到这个先修课程，那么就不能推荐
                             canTake = 0;
                             break;
                         }
-                        if(!canTake){
+                        if(canTake == 0){
                             break;
                         }
+                        l = l + 1;
                     }
 
                     // 某一个先修课完全符合要求，也就是canTake没有被改成false，那么就可以推荐
-                    if(canTake){
-                        nextCourse[nextCourses_len] = name[i];
-                        nextCourses_len++;
+                    if(canTake == 1){
+                        nextCourse[nextCourses_len] = name[ii];
+                        nextCourses_len = nextCourses_len + 1;
                         break; // 也不用看后面的可能预修要求了
                     }
                     memset(pre_strs, 0, sizeof(pre_strs));
                     pre_strs_len = 0;
+                    pres_id = pres_id + 1;
 
                 }
                 // reset the arrays
@@ -319,6 +328,7 @@ int main(){
 
             }
         }
+        ii = ii + 1;
     }
     if(hAttempt==0){
         summary( 0.0 , hAttempt, hComplete, cRemain, nextCourse);
