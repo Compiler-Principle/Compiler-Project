@@ -4,6 +4,7 @@ int prereq[105][400];
 int grade[105];
 int courses_len;
 int nextCourses_len;
+int temp_bool;
 
 function int parseGrade(int g){
     int ret;
@@ -240,6 +241,9 @@ function int main(){
     }
     i = 0;
     ii = 0;
+    /* 59: ; */
+    /* 44: , */
+
     while(ii < course_cnt){
         if(grade[ii] == -1 || grade[ii] == 0){
             if(strlen(prereq[ii]) == 0){
@@ -250,10 +254,8 @@ function int main(){
             }
             else{
                 canTake = 1;
-
-
-                if(strContains(prereq[ii], ';') == 1){
-                    valid_pre_strs_len = lineSplit(prereq[ii], ';', valid_pre_strs);
+                if(strContains(prereq[ii], 59) == 1){
+                    valid_pre_strs_len = lineSplit(prereq[ii], 59, valid_pre_strs);
                 }
                 else{
                     strcpy(valid_pre_strs[valid_pre_strs_len], prereq[ii]);
@@ -262,8 +264,8 @@ function int main(){
                 pres_id = 0;
                 while(pres_id < valid_pre_strs_len){
 
-                    if(strContains(valid_pre_strs[pres_id], ',') == 1){
-                        pre_strs_len = lineSplit(valid_pre_strs[pres_id], ',', pre_strs);
+                    if(strContains(valid_pre_strs[pres_id], 44) == 1){
+                        pre_strs_len = lineSplit(valid_pre_strs[pres_id], 44, pre_strs);
                     }
                     else{
                         strcpy(pre_strs[pre_strs_len], valid_pre_strs[pres_id]);
