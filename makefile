@@ -8,8 +8,14 @@ lex.yy.c : scanner.l
 	@flex scanner.l
 
 clean : 
-	@rm -f lex.yy.c parser.tab.c parser.tab.h parser parser.output main.bc main.ll
+	@rm -f lex.yy.c parser.tab.c parser.tab.h parser parser.output main.bc main.ll a.out
 
 run : parser
 	@./parser test.txt
 	@llvm-dis < main.bc
+	@lli main.bc
+
+test : parser
+	@./parser test.txt
+	@clang main.bc
+	@./linux-amd64 ./a.out
