@@ -1,53 +1,9 @@
-/*quick sort*/
-int data[10005];
-function int qsort(int l,int r){
-    int ll;
-    int rr;
-    int pivot;
-    int tmp;
+int a;
 
-    ll = l;
-    rr = r;
-    pivot = data[l];
-
-    if(l<r){
-        while(ll<rr){
-            while(data[ll]<pivot){
-                ll=ll+1;
-            }
-            while(data[rr]>pivot){
-                rr=rr-1;
-            }
-            if(ll<=rr){
-                if(data[ll]>=data[rr]){
-                    tmp=data[ll];
-                    data[ll]=data[rr];
-                    data[rr]=tmp;
-                }
-                ll=ll+1;
-                rr=rr-1;
-            }
-        }
-        qsort(l,rr);
-        qsort(ll,r);
-    }
-
-    return 0;
-}
-function int main(){
-    int i;
-    int n;
-    i = 1;
-    cin("%d", &n);
-    while(i<=n){
-        cin("%d",&data[i]);
-        i=i+1;
-    }
-    qsort(1,n);
-    i=1;
-    while(i<=n){
-        cout("%d\n",data[i]);
-        i=i+1;
+function int main() {
+    while(cinResult != -1) {
+        cin("%d", &a);
+        cout("%d\n", cinResult);
     }
     return 0;
 }

@@ -155,7 +155,8 @@ BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         }
         ArrayRef<Value *> argsRef(args);
 
-        funBuilder.CreateCall(funcScanf, argsRef);
+        Value *res = funBuilder.CreateCall(funcScanf, argsRef);
+        funBuilder.CreateStore(res, globalVariables["cinResult"]);
     }
     else if(ast->name == "Output_Exp") {
         vector<Value *> args;
@@ -431,6 +432,12 @@ void genGlobalVar(baseAST *ast) {
             globalArray[var->name] = arrayLen;
         }
     }
+
+    TheModule.getOrInsertGlobal("cinResult", getType(type));
+    auto coutRes = TheModule.getGlobalVariable("cinResult");
+    coutRes->setLinkage(GlobalValue::CommonLinkage);
+    coutRes->setInitializer(ConstantInt::get(Type::getInt32Ty(TheContext), 0));
+    globalVariables["cinResult"] = coutRes;
 }
 
 void genLocalVar(baseAST *ast, IRBuilder<> funBuilder) {
