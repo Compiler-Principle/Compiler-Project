@@ -402,7 +402,39 @@ typedef enum AST_DataType
 ![AST可视化](resources/AST可视化.jpg)
 
 ### 3.4 符号表和函数表 fzy
-由于存在变量作用域的概念，在编译器中存在有局部变量和全局变量，全局变量需要定义在函数外部
+由于存在变量作用域的概念，在编译器中存在有局部变量和全局变量，全局变量需要定义在函数外部，在`main`函数中被定义，在其它文件中被声明。
+在遍历抽象语法树的时候，我们会对符号表和函数表进行构建，每当扫描到新定义的元素的时候，需要将其加入符号表，当扫描到函数的时候，需要将其加入全局的函数符号表中。
+由于不存在闭包的概念，函数中只可以存在陈述语句和变量定义，不能存在函数定义。
+
+全局符号表是一个由符号名到变量属性的映射关系，定义如`std::map<std::string, Var *>`。
+其中`Var`中存储了变量的名称、类别以及是否在定义后被使用过，具体的类型定义如下：
+```c++
+class Var {
+public:
+    std::string name;
+    AST_DataType type;
+    bool used; // default false
+    Var(std::string name, AST_DataType type) : name(std::move(name)), type(type), used(false) {}
+    ~Var() {}
+};
+```
+
+类似地，函数符号表同样是一个由函数名称映射到函数属性信息入口的对应关系，定义如`std::map<std::string, Func *>`
+每个函数属性包含了名称、种类、以及函数内部的局部变量，在构建符号表的过程中，建表函数`buildTable`需要传入当前作用域`Func *scope`，在调用时可以递归调用传入更深层的解析树的结构中。
+
+
+```c++
+class Func {
+public:
+    std::string name;
+    AST_DataType type;
+    std::map<std::string, Var *> localVars; // local variables in the specific function
+    Func(std::string name, AST_DataType rtype): name(std::move(name)), type(rtype) {}
+    ~Func(){}
+};
+```
+
+
 
 ### 3.5 中间代码生成 jwz
 
