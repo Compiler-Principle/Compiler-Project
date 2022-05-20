@@ -15,9 +15,7 @@ run : parser
 	@llvm-dis < main.bc
 	@lli main.bc
 
-test : a.out
+test : parser
 	@./parser test.txt
-	@llvm-dis < main.bc
-	@lli main.bc
 	@clang main.bc
 	@./linux-amd64 ./a.out

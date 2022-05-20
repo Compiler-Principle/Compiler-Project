@@ -25,5 +25,6 @@ Function *genPrototype(baseAST *ast);
 Function *genFunc(baseAST *ast);
 BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder);
 Value *genExp(baseAST *ast, IRBuilder<> funBuilder);
+void genLocalVar(baseAST *ast, IRBuilder<> funBuilder);
 
 #endif

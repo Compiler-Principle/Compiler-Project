@@ -8,7 +8,7 @@ map<string, Function *> functions;
 map<string, Value *> globalVariables;
 map<string, vector<int>> globalArray;
 map<Function *, map<string, Value*>> localVariables;
-map<Function *, map<string, vector<int>>> localAray;
+map<Function *, map<string, vector<int>>> localArray;
 
 Function *funcPrintf;
 Function *funcScanf;
@@ -120,7 +120,8 @@ Function *genFunc(baseAST *ast) {
     if(argAST != nullptr) {
         for(auto arg : argAST->children) {
             iter->setName(arg->children[1]->name);
-            localVariables[fun][arg->children[1]->name] = iter;
+            localVariables[fun][arg->children[1]->name] = funBuilder.CreateAlloca(getType(arg->children[0]->name), nullptr, arg->children[1]->name);
+            funBuilder.CreateStore(iter, localVariables[fun][arg->children[1]->name]);
             iter++;
         }
     }
@@ -230,6 +231,8 @@ BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder) {
 }
 
 Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
+    Function *fun = funBuilder.GetInsertBlock()->getParent();
+
     if(ast->name == "constint") {
         return ConstantInt::get(Type::getInt32Ty(TheContext), ((constNode *) ast)->dvalue.integer);
     }
@@ -237,52 +240,88 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
         return ConstantFP::get(Type::getDoubleTy(TheContext), ((constNode *) ast)->dvalue.floatt);
     }
     else if(ast->type == T_var) {
-        if(ast->childCnt == 0)
-            return funBuilder.CreateLoad(globalVariables[ast->name]);
+        if(ast->childCnt == 0) {
+            if(globalVariables[ast->name] != nullptr) return funBuilder.CreateLoad(globalVariables[ast->name]);
+            else return funBuilder.CreateLoad(localVariables[fun][ast->name]);
+        }
         else {
-            vector<Value *> offsets;
-            for(auto child : ast->children) offsets.push_back(genExp(child, funBuilder));
-            Value *offset = getOffset(globalArray[ast->name], offsets, funBuilder);
-            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
-            auto *address = funBuilder.CreateGEP(globalVariables[ast->name], idxs);
-            return funBuilder.CreateLoad(address);
+            if(globalVariables[ast->name] != nullptr) {
+                vector<Value *> offsets;
+                for(auto child : ast->children) offsets.push_back(genExp(child, funBuilder));
+                Value *offset = getOffset(globalArray[ast->name], offsets, funBuilder);
+                Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
+                auto *address = funBuilder.CreateGEP(globalVariables[ast->name], idxs);
+                return funBuilder.CreateLoad(address);
+            }
+            else {
+                vector<Value *> offsets;
+                for(auto child : ast->children) offsets.push_back(genExp(child, funBuilder));
+                Value *offset = getOffset(localArray[fun][ast->name], offsets, funBuilder);
+                Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
+                auto *address = funBuilder.CreateGEP(localVariables[fun][ast->name], idxs);
+                return funBuilder.CreateLoad(address);
+            }
         }
     }
     else if(ast->name == "LOGICAND") {
-        if(ast->children[0]->childCnt == 0)
-            return globalVariables[ast->children[0]->name];
+        if(ast->children[0]->childCnt == 0) {
+            if(globalVariables[ast->children[0]->name] != nullptr) return globalVariables[ast->children[0]->name];
+            else return localVariables[fun][ast->children[0]->name];
+        }
         else {
-            vector<Value *> offsets;
-            for(auto child : ast->children[0]->children) offsets.push_back(genExp(child, funBuilder));
-            Value *offset = getOffset(globalArray[ast->children[0]->name], offsets, funBuilder);
-            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
-            auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
-            return address;
+            if(globalVariables[ast->children[0]->name] != nullptr) {
+                vector<Value *> offsets;
+                for(auto child : ast->children[0]->children) offsets.push_back(genExp(child, funBuilder));
+                Value *offset = getOffset(globalArray[ast->children[0]->name], offsets, funBuilder);
+                Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
+                auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
+                return address;
+            }
+            else {
+                vector<Value *> offsets;
+                for(auto child : ast->children[0]->children) offsets.push_back(genExp(child, funBuilder));
+                Value *offset = getOffset(localArray[fun][ast->children[0]->name], offsets, funBuilder);
+                Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
+                auto *address = funBuilder.CreateGEP(localVariables[fun][ast->children[0]->name], idxs);
+                return address;
+            }
         }
     }
     else if(ast->name == "ASSIGN") {
-        if(ast->children[0]->childCnt == 0)
-            return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), globalVariables[ast->children[0]->name]);
+        if(ast->children[0]->childCnt == 0) {
+            if(globalVariables[ast->children[0]->name] != nullptr) return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), globalVariables[ast->children[0]->name]);
+            else return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), localVariables[fun][ast->children[0]->name]);
+        }
         else {
-            vector<Value *> offsets;
-            for(auto child : ast->children[0]->children) offsets.push_back(genExp(child, funBuilder));
-            Value *offset = getOffset(globalArray[ast->children[0]->name], offsets, funBuilder);
-            Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
-            auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
-            return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), address);
+            if(globalVariables[ast->children[0]->name] != nullptr) {
+                vector<Value *> offsets;
+                for(auto child : ast->children[0]->children) offsets.push_back(genExp(child, funBuilder));
+                Value *offset = getOffset(globalArray[ast->children[0]->name], offsets, funBuilder);
+                Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
+                auto *address = funBuilder.CreateGEP(globalVariables[ast->children[0]->name], idxs);
+                return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), address);
+            }
+            else {
+                vector<Value *> offsets;
+                for(auto child : ast->children[0]->children) offsets.push_back(genExp(child, funBuilder));
+                Value *offset = getOffset(localArray[fun][ast->children[0]->name], offsets, funBuilder);
+                Value *idxs[] = {ConstantInt::get(Type::getInt32Ty(TheContext), 0), offset};
+                auto *address = funBuilder.CreateGEP(localVariables[fun][ast->children[0]->name], idxs);
+                return funBuilder.CreateStore(genExp(ast->children[1], funBuilder), address);
+            }
         }
     }
     else if(ast->type == T_expr) {
         if(ast->childCnt == 0) {
             vector<Value *> args;
             ArrayRef<Value *> argsRef(args);
-            funBuilder.CreateCall(functions[ast->name], argsRef);
+            return funBuilder.CreateCall(functions[ast->name], argsRef);
         }
         else {
             vector<Value *> args;
             for(auto child : ast->children[0]->children) args.push_back(genExp(child, funBuilder));
             ArrayRef<Value *> argsRef(args);
-            funBuilder.CreateCall(functions[ast->name], argsRef);
+            return funBuilder.CreateCall(functions[ast->name], argsRef);
         }
     }
     else if(ast->name == "MINUSDIGIT") {
@@ -392,7 +431,32 @@ void genGlobalVar(baseAST *ast) {
 }
 
 void genLocalVar(baseAST *ast, IRBuilder<> funBuilder) {
-    // localVariables[fun][arg->children[1]->name] = funBuilder.CreateAlloca(getType(arg->children[0]->name), nullptr, arg->children[1]->name);
+    string type = ast->children[0]->name;
+    vector<baseAST *> vars = ast->children[1]->children;
+    Function *fun = funBuilder.GetInsertBlock()->getParent();
+    for(auto var : vars) {
+        if(var->childCnt == 0) {
+            Value *lvar = funBuilder.CreateAlloca(getType(type), nullptr, var->name);
+            localVariables[fun][var->name] = lvar;
+        }
+        else {
+            vector<int> arrayLen;
+            int len = 1;
+            for(auto child : var->children) {
+                arrayLen.push_back(((constNode *) child)->dvalue.integer);
+                len *= ((constNode *) child)->dvalue.integer;
+            }
+
+            Type *arrayType;
+            if(type == "int") arrayType = ArrayType::get(Type::getInt32Ty(TheContext), len);
+            else if(type == "float") arrayType = ArrayType::get(Type::getDoubleTy(TheContext), len);
+            auto *constInit = llvm::ConstantAggregateZero::get(arrayType);
+            Value *array = funBuilder.CreateAlloca(arrayType, nullptr, var->name);
+
+            localVariables[fun][var->name] = array;
+            localArray[fun][var->name] = arrayLen;
+        }
+    }
 }
 
 void genCode(baseAST *ast) {

@@ -1,9 +1,15 @@
-function int main() {
-    f(1);
-    return 0;
+function int f(int i) {
+    int a;
+    if(i == 0) {
+        a = 0;
+    }
+    else {
+        a = f(i - 1) + i;
+    }
+    return a;
 }
 
-function int f(int i) {
-    cout("i");
+function int main() {
+    cout("%d", f(100));
     return 0;
 }
