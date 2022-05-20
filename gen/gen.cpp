@@ -183,13 +183,16 @@ BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder) {
         else funBuilder.CreateRet(genExp(ast->children[0], funBuilder));
     }
     else if(ast->name == "IF_Stmt") {
-        BasicBlock *labelIfThen = BasicBlock::Create(TheContext, "if.then", funBuilder.GetInsertBlock()->getParent());
-        BasicBlock *labelIfEnd = BasicBlock::Create(TheContext, "if.end", funBuilder.GetInsertBlock()->getParent());
+        BasicBlock *labelIfThen = BasicBlock::Create(TheContext, "if.then", funBuilder.GetInsertBlock()->getParent(), prevEnd);
+        BasicBlock *labelIfEnd = BasicBlock::Create(TheContext, "if.end", funBuilder.GetInsertBlock()->getParent(), prevEnd);
         funBuilder.CreateCondBr(genExp(ast->children[0], funBuilder), labelIfThen, labelIfEnd);
         Builder.SetInsertPoint(labelIfThen);
+        BasicBlock *tmp = prevEnd;
+        prevEnd = labelIfEnd;
         for(auto stmt : ast->children[1]->children[1]->children) genStmt(stmt, funBuilder);
         funBuilder.CreateBr(labelIfEnd);
         Builder.SetInsertPoint(labelIfEnd);
+        prevEnd = tmp;
     }
     else if(ast->name == "If_Else_Stmt") {
         BasicBlock *labelIfThen = BasicBlock::Create(TheContext, "if.then", funBuilder.GetInsertBlock()->getParent(), prevEnd);
