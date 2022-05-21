@@ -437,7 +437,36 @@ public:
 
 
 ### 3.5 中间代码生成 jwz
+我们在gen.cpp中生成中间代码，在这一部里会借助llvm将生成的抽象语法树转换成llvm中间代码并输出bitcode文件。
 
+生成中间代码的第一步是生成全局变量，我们使用两张表分别记录变量名到llvm全局变量类型和数组维度的映射。生成多维数组时，会先将多维数组转换成一维数组，申请内存，记录每一维数组的长度。在使用多维数组时会根据每一维的长度计算具体的内存偏移。
+
+```c++
+map<string, Value *> globalVariables;
+map<string, vector<int>> globalArray;
+```
+
+第二步会生成函数，生成函数时会扫描两遍，第一遍会先生成函数定义，并使用一张表存储函数名到llvm函数类型的映射。同时我们会在这一步生成输入输出函数的定义，llvm可以直接调用C语言的标准库函数，只需要添加函数定义即可。
+
+```c++
+Function *genPrototype(baseAST *ast);
+map<string, Function *> functions;
+```
+
+第二步扫描才是真正生成函数体，生成函数体又分为两个过程，第一个过程是生成局部变量，这一步和生成全局变量类似，也会使用两张表记录，但是会增加一层映射记录局部变量对应的函数。
+
+```c++
+map<Function *, map<string, Value*>> localVariables;
+map<Function *, map<string, vector<int>>> localArray;
+```
+
+第二个过程是生成对应的语句，生成器会根据ast的节点类型生成对应的语句。
+
+```c++
+BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder)
+```
+
+最后一步是输出llvm bitcode文件，我们会使用llvm WriteBitcodeToFile函数将以上生成的module输出到文件，之后就可以使用lli运行编译后的中间代码。
 
 ## 4 进阶主题 fzy
 
@@ -540,10 +569,125 @@ function int main(){
 
 #### 5.2.1 简介
 
+
+**输入：**两个矩阵 $A$ 和 $B$ 。每个矩阵输入的第一行是单个空格隔开的两个整数 $M$ 和 $N$ ，满足 $1 \leqslant M, N \leqslant 25$ ，分别代表了矩阵的行数和列数。接下来 $M$ 行，每行是 $N$ 个整数，整数之间使用一个以上空格隔开，并满足整数的位数（负号算一位）加上空格的数量等于 $6$ 。 整数全部在区间 $(-1000, 1000)$ 中。不保证 $A$ 和 $B$ 之间可以进行乘法操作。
+
+**输出：**如果 $A$ 和 $B$ 的维度不满足乘法的要求（即 $N_A \ne M_B$ ），则输出 `Incompatible Dimensions` ，该信息独占一行（输出后需要换行）；否则，需要计算：
+
+$$
+\begin{aligned}
+C & =
+\begin{bmatrix}
+c_{0, 0} & \dots & c_{0, N_C - 1} \\
+c_{1, 0} & \dots & c_{1, N_C - 1} \\
+\dots & \dots & \dots \\
+c_{M_C - 1, 0} & \dots & c_{M_C - 1, N_C - 1} \\
+\end{bmatrix}
+= A B \\
+& =
+\begin{bmatrix}
+a_{0, 0} & \dots & a_{0, N_A - 1} \\
+a_{1, 0} & \dots & a_{1, N_A - 1} \\
+\dots & \dots & \dots \\
+a_{M_A - 1, 0} & \dots & a_{M_A - 1, N_A - 1} \\
+\end{bmatrix}
+\begin{bmatrix}
+b_{0, 0} & \dots & b_{0, N_B - 1} \\
+b_{1, 0} & \dots & b_{1, N_B - 1} \\
+\dots & \dots & \dots \\
+b_{M_B - 1, 0} & \dots & b_{M_B - 1, N_B - 1} \\
+\end{bmatrix}
+\end{aligned}
+$$
+
+其中：
+
+$$
+c_{i, j} = \sum_{k = 0}^{N_A - 1} a_{i, k} b_{k, j}
+$$
+
+计算完成后需要输出结果。结果分为 $M_C$ 行输出，每一行有 $N_C$ 个整数，每个整数前有数个空格，并满足整数的位数（负号算一位）加上空格的数量等于 $10$ 。
 #### 5.2.2 代码实现
 
 ```c--
+int a[25][25];
+int b[25][25];
+int c[25][25];
+int ma;
+int na;
+int mb;
+int nb;
+int i;
+int j;
+int k;
 
+function int main() {
+    cin("%d %d", &ma, &na);
+
+    i = 0;
+    while(i < ma) {
+        j = 0;
+        while(j < na) {
+            cin("%d", &a[i][j]);
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    cin("%d %d", &mb, &nb);
+
+    i = 0;
+    while(i < mb) {
+        j = 0;
+        while(j < nb) {
+            cin("%d", &b[i][j]);
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    if(na != mb) {
+        cout("Incompatible Dimensions\n");
+    }
+    else {
+        i = 0;
+        while(i < ma) {
+            j = 0;
+            while(j < nb) {
+                c[i][j] = 0;
+                j = j + 1;
+            }
+            i = i + 1;
+        }
+
+        i = 0;
+        while(i < ma) {
+            j = 0;
+            while(j < nb) {
+                k = 0;
+                while(k < na) {
+                    c[i][j] = c[i][j] + a[i][k] * b[k][j];
+                    k = k + 1;
+                }
+                j = j + 1;
+            }
+            i = i + 1;
+        }
+
+        i = 0;
+        while(i < ma) {
+            j = 0;
+            while(j < nb) {
+                cout("%10d", c[i][j]);
+                j = j + 1;
+            }
+            cout("\n");
+            i = i + 1;
+        }
+    }
+
+    return 0;
+}
 ```
 
 #### 5.2.3 测试结果
@@ -568,5 +712,5 @@ function int main(){
 
 **范钊瑀：**为了顺利完成我们整体的编译器，我们需要将课堂中学到的理论知识和代码的实现联系起来，在不断的学习中，我对课堂中有关词法、语法分析的了解更加详细，对真实情况下的编译器的实现也更加了解。此外，在完成大作业的过程中，我也学习到了许多其它相关的知识，例如使用Git进行协作，使用CMake和Makefile管理工程，以及CI/CD等自动化工具。除了专业课的知识以外，工程管理和团队协作的知识也都是在合作中至关重要的环节。
 
-**季文卓：**
+**季文卓：**在完成本次编译原理的大作业的过程中，我对于编译器运作的过程有了更加深刻的理解，并且将课堂中的理论知识合理运用到大作业中。我在这个项目中主要负责的是中间代码生成的部分，这一部分的难点很大一部分来自于需要阅读大量文档，学习llvm的中间代码的语法和如何利用llvm库函数生成中间代码。并且我还在这个过程中学习到了一些调试技巧，例如可以用clang编译一段功能相同的C语言代码，查看和自己生成的中间代码有什么不同来进行调试。
 
