@@ -6,6 +6,22 @@ int courses_len;
 int nextCourses_len;
 int temp_bool;
 
+function void getline(int s[100]){
+    int i,c;
+    i = 0;
+    while(1){
+        cin("%c", &c);
+        /* 10: \n new line */
+        if(c == 10){
+            break;
+        }
+        s[i] = c;
+        i = i + 1;
+    }
+    s[i] = 0;
+    return;
+}
+
 function int parseGrade(int g){
     int ret;
     ret = -1;
@@ -209,7 +225,7 @@ function int main(){
 
 
     while(1){
-        cin("%s", line);
+        getline(line);
         line_slice = lineSplit(line, 124, t);
         if(line_slice == 1){
             break;
