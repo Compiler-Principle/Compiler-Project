@@ -8,6 +8,19 @@ int grade[105];
 int courses_len;
 int nextCourses_len = 0;
 
+void myscanf(char s[]){
+    int i = 0;
+    char c;
+    while(1){
+        scanf("%c", &c);
+        if(c == 10 || c == 0){
+            break;
+        }
+        s[i++] = c;
+    }
+    s[i] = '\0';
+}
+
 int parseGrade(char g){
     int ret;
     ret = -1;
@@ -204,7 +217,8 @@ int main(){
     pre_strs_len = 0;
 
 
-    while(scanf("%s", line) != EOF){
+    while(1){
+        myscanf(line);
         line_slice = lineSplit(line, '|', t);
         if(line_slice == 1){
             break;

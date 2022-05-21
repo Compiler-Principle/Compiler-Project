@@ -12,7 +12,7 @@ function void getline(int s[100]){
     while(1){
         cin("%c", &c);
         /* 10: \n new line */
-        if(c == 10){
+        if(c == 10 || c == 0){
             break;
         }
         s[i] = c;
@@ -224,7 +224,7 @@ function int main(){
     nextCourses_len = 0;
 
 
-    while(1){
+    while(cinResult != -1){
         getline(line);
         line_slice = lineSplit(line, 124, t);
         if(line_slice == 1){
