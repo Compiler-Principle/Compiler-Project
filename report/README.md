@@ -9,7 +9,7 @@
 + flex
 + bison
 + LLVM
-+ CMake
++ CMake Makefile
 
 ### 1.2 小组分工 
 
@@ -19,7 +19,7 @@
 + 范钊瑀：语法设计，AST可视化，符号表与函数表，测试用例选课助手，进阶主题
 + 季文卓：语法分析，中间代码生成，测试用例矩阵乘法
 
-## 2 语法定义 fzy
+## 2 语法定义
 ### 2.1 程序结构
 我们所设计的语言和c语言十分类似
 整体程序由两部分构成，全局变量定义部分在上，函数部分在下。在全局作用范围内只能够定义全局变量，局部变量需要定义在函数内部。但是为了保证全局变量的安全，在全局定义区域不可以对全局变量进行赋值等操作。
@@ -441,13 +441,13 @@ typedef enum AST_DataType
 
 #### 3.3.3 可视化成果展示
 
-我们在生成抽象语法树之后，利用print函数将树的结构打印到json文件中。并利用react将树的结构可视化的展示在网页上。
+我们在生成抽象语法树之后，利用print函数进行深度优先搜索，将树的结构格式化输出到json文件中。并利用react将树的结构可视化的展示在前端页面上。
 
 下图是快速排序形成的抽象语法树。
 
 ![AST可视化](resources/AST可视化.jpg)
 
-### 3.4 符号表和函数表 fzy
+### 3.4 符号表和函数表
 由于存在变量作用域的概念，在编译器中存在有局部变量和全局变量，全局变量需要定义在函数外部，在`main`函数中被定义，在其它文件中被声明。
 在遍历抽象语法树的时候，我们会对符号表和函数表进行构建，每当扫描到新定义的元素的时候，需要将其加入符号表，当扫描到函数的时候，需要将其加入全局的函数符号表中。
 由于不存在闭包的概念，函数中只可以存在陈述语句和变量定义，不能存在函数定义。
@@ -482,7 +482,7 @@ public:
 
 
 
-### 3.5 中间代码生成 jwz
+### 3.5 中间代码生成
 我们在gen.cpp中生成中间代码，在这一部里会借助llvm将生成的抽象语法树转换成llvm中间代码并输出bitcode文件。
 
 生成中间代码的第一步是生成全局变量，我们使用两张表分别记录变量名到llvm全局变量类型和数组维度的映射。生成多维数组时，会先将多维数组转换成一维数组，申请内存，记录每一维数组的长度。在使用多维数组时会根据每一维的长度计算具体的内存偏移。
@@ -514,26 +514,26 @@ BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder)
 
 最后一步是输出llvm bitcode文件，我们会使用llvm WriteBitcodeToFile函数将以上生成的module输出到文件，之后就可以使用lli运行编译后的中间代码。
 
-## 4 进阶主题 fzy
+## 4 进阶主题
 
 ### 4.1 错误检测 
 在我们的编译器中，定义有一套统一的通知信息输出规范，不同重要性的信息被分为三种级别，分别为最严重的错误：`ERROR`、警告：`WARNING`和通知：`INFO`，对于不同分析阶段产生的报错，我们的编译器都可以有效地进行提示，报错会附带有提示的等级。
+
+<img src="resources/info.png" alt="不同等级的警示信息样例" style="zoom: 50%;" />
 
 #### 4.1.1 词法分析
 在词法分析的过程中，lex程序会处理解析得到的错误token，例如identifier如果以数字开头，那么它是不合法的，在词法分析的过程中就会报错并终止编译。
 
 #### 4.1.2 语法分析
 
-在语法分析的过程中，
+在语法分析的过程中，我们定义了`yyerror`函数，当分析出错的时候，会抛出出错的位置，包括正在分析的内容、报错的行数等信息。
 
 #### 4.1.3 AST构建
 
 在AST构建的过程中，程序会对整个抽象语法树进行两次扫描，第一遍遍历会经过所有`AST_Type::T_Defi`类型的节点，通过遍历所有程序块中的定义部分，遍历并建立符号表，第二遍是遍历不会经过之前遍历过的部分，而会着重于`statement`语句中对符号表中的变量和定义调用是否是合法的。
 
 
-### 4.2 宏展开 
-
-### 4.3 变量优化
+### 4.2 变量优化
 我们借鉴Golang的设计思想，对于某个作用域中的变量，如果我们在定义之后从来没有使用过它（包括对其赋值、参与算数或逻辑运算等操作），那么在编写程序时此变量应当被优化掉，以减少内存空间的消耗。
 我们通过对抽象语法树的两遍遍历，第一次得到了程序中所有能够被用到的变量，第二次对表达式进行分析，得到未被使用的变量，在编译结束的阶段会抛出`WARNING`级别的信息，提示用户某个作用域内存在未使用的变量。
 因此在符号表的项目中也需要加上标记是否变量被调用过的变量，在扫描结束后通过遍历符号表中的元素提示变量的使用情况。
@@ -743,20 +743,374 @@ function int main() {
 #### 5.3.1 简介
 
 在选课助手的样例中，程序需要一行行读入学生的培养方案，之后对学生培养方案上的所有课程进行信息汇总，之后得到学生的均绩GPA，总共尝试的学分、已修的学分和剩余学分。
+输入：输入是一个培养方案，每行一门课程，空行代表输入结束。每门课程是一个四元组 C = (课程名称, 学分, 前置课程, 成绩) 。每个字段可能包含任意长度的字符串，但不会有前置和后置的 空白符。各个字段之间使用 `|` 隔开。
+
+- 课程名称 是不包含 `,` `、` `;` 和 `|` 的长度大于 0 小于 5 的字符串。 学分是非负整数，大于 0 小于 5 。 
+- 前置课程 是修读本门课程时必须已经获得学分的课程。 `,` 相当于逻辑操作 `and` ， `;` 相当于逻辑操作 `or` 。 `,` 的优先级高于 `;` 。 `A,B;C,D` 的含义是 `A` 并且 `B` ， 或者 `C` 并且 `D` 。使用类 似 C 语言的方式描述就是 `A && B || C && D` 。注意前置课程不一定存在于培养方案中。 
+- 成绩 是能够匹配正则表达式 `[ABCDF]?` 的字符串。当本字段为空时，代表还未修读本课程；当成 绩为 F 时，代表曾经修读但是挂科，没有获得学分；其他情况代表成功获得学分。
+
+输出：需要计算以下内容。
+
+- GPA ，使用四分制，其中 `A` 等于 4 ， `B` 等于 3 ， `C` 等于 2 ， `D` 等于 1 ， `F` 等于 0 ，结果保 GPA 留一位小数，格式匹配正则表达式 `[0-3]\.[0-9]|4\.0` 。计算公式为： = (∑ 成绩 × 学分)/尝试学分 。 
+- 尝试学分，已经获得成绩的课程的总学分。包括获得 F 成绩的课程。 
+- 已修学分，已经获得的总学分。成绩为 F 的课程没有获得学分。 
+- 剩余学分，培养方案中还有多少学分没有修读，包括成绩为 F 的课程。 
+- 推荐课程，满足前置课程条件，可以修读的课程但还没有获得学分的课程。必须按照课程出现在输入中的先后顺序进行输出。
 
 #### 5.3.2 代码实现
 
 ```c--
+int name[105];
+int credit[105];
+int prereq[105][400];
+int grade[105];
+int courses_len;
+int nextCourses_len;
+int temp_bool;
 
+function void getline(int s[100]){
+    int i,c;
+    i = 0;
+    while(1){
+        cin("%c", &c);
+        /* 10: \n new line */
+        if(c == 10 || c == 0){
+            break;
+        }
+        s[i] = c;
+        i = i + 1;
+    }
+    s[i] = 0;
+    return;
+}
+
+function int parseGrade(int g){
+    int ret;
+    ret = -1;
+    if(g == 65){
+        ret = 4;
+    }
+    if(g == 66){
+        ret = 3;
+    }
+    if(g == 67){
+        ret = 2;
+    }
+    if(g == 68){
+        ret = 1;
+    }
+    if(g == 70){
+        ret =0;
+    }
+    return ret;
+}
+
+function int strCount(int s[400], int c){
+    int count, i;
+    i = 0;
+    count = 0;
+
+    while(s[i] != 0){
+        if(s[i] == c){
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+    return count;
+}
+
+function void summary(float gpa, int hAttempt, int hComplete, int cRemain, int courses[400]){
+    int i;
+    i = 0;
+
+    cout("GPA: %.1f\n", gpa);
+    cout("Hours Attempted: %d\n", hAttempt);
+    cout("Hours Completed: %d\n", hComplete);
+    cout("Credits Remaining: %d\n", cRemain);
+    cout("\nPossible Courses to Take Next\n");
+    while(i < nextCourses_len){
+        cout("  c%d\n", courses[i]);
+        i = i + 1;
+    }
+    if(nextCourses_len == 0){
+        if(cRemain == 0){
+            cout("  None - Congratulations!\n");
+        }
+    }
+    return;
+}
+
+function int strContains(int basicString[400], int s) {
+    int i;
+    i = 0;
+    while(basicString[i] != 0){
+        if(basicString[i] == s){
+            return 1;
+        }
+        i = i + 1;
+    }
+    return 0;
+}
+
+function int a2i(int p[400], int start){
+    int cyc, ret;
+    int i, t;
+    i = 0;
+    t = 0;
+    while(i < start){
+        t = t + 1;
+        start = start - 1;
+    }
+    cyc = p[t];
+    t = t + 1;
+    ret = 0;
+
+    while(cyc >= 48 && cyc <= 57){
+        ret = 10 * ret + (cyc - 48);
+        cyc = p[t];
+        t = t + 1;
+    }
+
+    return ret;
+}
+
+function int strlen(int s[400]){
+    int i;
+    i = 0;
+    while(s[i] != 0){
+        i = i + 1;
+    }
+    return i;
+}
+
+function void memset(int i[400], int target, int len){
+    int j;
+    j = 0;
+    while( j < len){
+        i[j] = target;
+        j = j + 1;
+    }
+    return;
+}
+
+function void strcpy(int dest[400], int src[400]){
+    int i;
+    i = 0;
+    while(src[i] != 0){
+        dest[i] = src[i];
+        i = i + 1;
+    }
+    dest[i] = 0;
+    return;
+}
+
+function void substr(int s[400], int sub[400], int start, int len){
+    int i;
+    i = 0;
+    while(i < len){
+        sub[i] = s[start + i];
+        i = i + 1;
+    }
+    sub[i] = 0;
+    return;
+}
+
+function int lineSplit(int input[400], int deli, int res[400][400]){
+    int len, i, cnt, deli_count, ii;
+    int delimiter_idx[100];
+    int tmp[400];
+
+    deli_count = strCount(input, deli);
+    ii = 1;
+    cnt = 0;
+
+    delimiter_idx[deli_count+1] = strlen(input);
+    i = 0;
+    while(i < strlen(input)){
+        if(input[i] == deli){
+            delimiter_idx[ii] = i;
+            ii = ii + 1;
+        }
+        i = i + 1;
+    }
+
+    i= 0;
+    while( i < deli_count+1){
+        if(i == 0){
+            substr(input, tmp, delimiter_idx[i], delimiter_idx[i+1]-delimiter_idx[i]);
+        }
+        else{
+            substr(input, tmp, delimiter_idx[i]+1, delimiter_idx[i+1]-delimiter_idx[i]-1);
+        }
+        strcpy(res[cnt], tmp);
+        cnt = cnt + 1;
+        i = i + 1;
+    }
+    return cnt;
+
+}
+
+function int main(){
+
+    int course_cnt;
+    int line[400];
+    int t[105][400];
+    int line_slice, hAttempt, hComplete, cRemain;
+    float credit_score;
+
+    int nextCourse[105];
+    int canTake;
+    int found;
+    int i, ii;
+
+
+
+    int pres_id;
+    int l, k, this_course;
+
+
+
+    int valid_pre_strs[105][400];
+    int valid_pre_strs_len;
+    int pre_strs[105][400];
+    int pre_strs_len;
+
+
+    hAttempt = 0;
+    hComplete = 0;
+    cRemain = 0;
+    credit_score = 0.0;
+    course_cnt = 0;
+    valid_pre_strs_len = 0;
+    pre_strs_len = 0;
+    nextCourses_len = 0;
+
+
+    while(cinResult != -1){
+        getline(line);
+        line_slice = lineSplit(line, 124, t);
+        if(line_slice == 1){
+            break;
+        }
+        name[course_cnt] = a2i(t[0], 1);
+        credit[course_cnt] = a2i(t[1], 0);
+        strcpy(prereq[course_cnt], t[2]);
+        grade[course_cnt] = parseGrade(t[3][0]);
+        course_cnt = course_cnt + 1;
+    }
+    i = 0;
+    while( i < course_cnt){
+        if(grade[i] == -1){
+            cRemain = cRemain + credit[i];
+        }
+        else{
+            if(grade[i] == 0){
+                hAttempt = hAttempt + credit[i];
+                cRemain = cRemain + credit[i];
+
+            }
+            else{
+                credit_score = credit_score + grade[i] * credit[i];
+                hAttempt = hAttempt + credit[i];
+                hComplete = hComplete + credit[i];
+            }
+        }
+        i = i + 1;
+    }
+    i = 0;
+    ii = 0;
+    /* 59: ; */
+    /* 44: , */
+
+    while(ii < course_cnt){
+        if(grade[ii] == -1 || grade[ii] == 0){
+            if(strlen(prereq[ii]) == 0){
+                nextCourse[nextCourses_len] = name[ii];
+                nextCourses_len = nextCourses_len + 1;
+                ii = ii + 1;
+                continue;
+            }
+            else{
+                canTake = 1;
+                if(strContains(prereq[ii], 59) == 1){
+                    valid_pre_strs_len = lineSplit(prereq[ii], 59, valid_pre_strs);
+                }
+                else{
+                    strcpy(valid_pre_strs[valid_pre_strs_len], prereq[ii]);
+                    valid_pre_strs_len = valid_pre_strs_len + 1;
+                }
+                pres_id = 0;
+                while(pres_id < valid_pre_strs_len){
+
+                    if(strContains(valid_pre_strs[pres_id], 44) == 1){
+                        pre_strs_len = lineSplit(valid_pre_strs[pres_id], 44, pre_strs);
+                    }
+                    else{
+                        strcpy(pre_strs[pre_strs_len], valid_pre_strs[pres_id]);
+                        pre_strs_len = pre_strs_len + 1;
+                    }
+
+                    canTake = 1;
+                    l = 0;
+                    while(l < pre_strs_len){
+                        this_course = a2i(pre_strs[l], 1);
+                        found = 0;
+                        k = 0;
+                        while( k < course_cnt){
+                            if(name[k] == this_course){
+                                found = 1;
+                                if(grade[k] == -1 || grade[k] == 0){
+                                    canTake = 0;
+                                    break;
+                                }
+                            }
+                            k = k + 1;
+                        }
+                        if (found == 0){
+                            canTake = 0;
+                            break;
+                        }
+                        if(canTake == 0){
+                            break;
+                        }
+                        l = l + 1;
+                    }
+
+                    if(canTake == 1){
+                        nextCourse[nextCourses_len] = name[ii];
+                        nextCourses_len = nextCourses_len + 1;
+                        break;
+                    }
+                    memset(pre_strs, 0, 42000);
+                    pre_strs_len = 0;
+                    pres_id = pres_id + 1;
+
+                }
+                memset(valid_pre_strs, 0, 42000);
+                valid_pre_strs_len = 0;
+
+            }
+        }
+        ii = ii + 1;
+    }
+    if(hAttempt==0){
+        summary( 0.0 , hAttempt, hComplete, cRemain, nextCourse);
+
+    }
+    else{
+        summary(credit_score/hAttempt, hAttempt, hComplete, cRemain, nextCourse);
+    }
+    return 0;
+}
 ```
 
 #### 5.3.3 测试结果 
 
 ## 6 心得体会
 
-**刘舒菡：**这次编译原理大作业对我们而言是一次很大的挑战，我们进入到了一个全新的未知的领域，去探索了编译器底层的一些实现。非常感谢我的两个队友们，他们都非常的可靠！也正是靠我们共同的努力，才能将这个大作业比较完善地完成。在这个过程中，我收获了很多，对lex和yacc的用法更加熟练了，对编译器实现的底层原理更加了解了，也增强了我的团队合作能力。纵然我们的编译器还有进步的空间，但我在这次实验中收获了许多的成就感与满足感！
+**刘舒菡：** 这次编译原理大作业对我们而言是一次很大的挑战，我们进入到了一个全新的未知的领域，去探索了编译器底层的一些实现。非常感谢我的两个队友们，他们都非常的可靠！也正是靠我们共同的努力，才能将这个大作业比较完善地完成。在这个过程中，我收获了很多，对lex和yacc的用法更加熟练了，对编译器实现的底层原理更加了解了，也增强了我的团队合作能力。纵然我们的编译器还有进步的空间，但我在这次实验中收获了许多的成就感与满足感！
 
-**范钊瑀：**为了顺利完成我们整体的编译器，我们需要将课堂中学到的理论知识和代码的实现联系起来，在不断的学习中，我对课堂中有关词法、语法分析的了解更加详细，对真实情况下的编译器的实现也更加了解。此外，在完成大作业的过程中，我也学习到了许多其它相关的知识，例如使用Git进行协作，使用CMake和Makefile管理工程，以及CI/CD等自动化工具。除了专业课的知识以外，工程管理和团队协作的知识也都是在合作中至关重要的环节。
+**范钊瑀：** 为了顺利完成我们整体的编译器，我们需要将课堂中学到的理论知识和代码的实现联系起来，在不断的学习中，我对课堂中有关词法、语法分析的了解更加详细，对真实情况下的编译器的实现也更加了解。此外，在完成大作业的过程中，我也学习到了许多其它相关的知识，例如使用Git进行协作，使用CMake和Makefile管理工程，以及CI/CD等自动化工具。除了专业课的知识以外，工程管理和团队协作的知识也都是在合作中至关重要的环节。
 
-**季文卓：**在完成本次编译原理的大作业的过程中，我对于编译器运作的过程有了更加深刻的理解，并且将课堂中的理论知识合理运用到大作业中。我在这个项目中主要负责的是中间代码生成的部分，这一部分的难点很大一部分来自于需要阅读大量文档，学习llvm的中间代码的语法和如何利用llvm库函数生成中间代码。并且我还在这个过程中学习到了一些调试技巧，例如可以用clang编译一段功能相同的C语言代码，查看和自己生成的中间代码有什么不同来进行调试。
+**季文卓：** 在完成本次编译原理的大作业的过程中，我对于编译器运作的过程有了更加深刻的理解，并且将课堂中的理论知识合理运用到大作业中。我在这个项目中主要负责的是中间代码生成的部分，这一部分的难点很大一部分来自于需要阅读大量文档，学习llvm的中间代码的语法和如何利用llvm库函数生成中间代码。并且我还在这个过程中学习到了一些调试技巧，例如可以用clang编译一段功能相同的C语言代码，查看和自己生成的中间代码有什么不同来进行调试。
 

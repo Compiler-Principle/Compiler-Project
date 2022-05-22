@@ -12,6 +12,6 @@ void info(InfoLevel level, std::string message){
     }
     else if(level == InfoLevel::ERROR){
         std::cout << "\033[31m[ ERROR ]: \033[0m" ;
-        std::cerr << message << std::endl;
+        std::cout << message << std::endl;
     }
 }
