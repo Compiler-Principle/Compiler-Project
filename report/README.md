@@ -609,7 +609,7 @@ function int main(){
 ```
 
 #### 5.1.3 测试结果
-
+![image](resources/test1.jpg)
 
 ### 5.2 矩阵乘法 jwz
 
@@ -737,6 +737,7 @@ function int main() {
 ```
 
 #### 5.2.3 测试结果
+![image](resources/test2.jpg)
 
 ### 5.3 选课助手 fzy
 
