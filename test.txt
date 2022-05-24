@@ -1,9 +1,9 @@
-int a;
+float a;
+int b;
 
 function int main() {
-    while(cinResult != -1) {
-        cin("%d", &a);
-        cout("%d\n", cinResult);
-    }
+    b = 1;
+    a = b * 1.0;
+    cout("%f", a);
     return 0;
 }

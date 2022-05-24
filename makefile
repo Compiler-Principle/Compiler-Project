@@ -10,8 +10,8 @@ lex.yy.c : scanner.l
 clean : 
 	@rm -f lex.yy.c parser.tab.c parser.tab.h parser parser.output main.bc main.ll a.out
 
-run : parser
-	@./parser test.txt
+run : parser test_aa.txt
+	@./parser test_aa.txt
 	@llvm-dis < main.bc
 	@lli main.bc
 
