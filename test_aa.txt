@@ -3,6 +3,8 @@ int credit[105];
 int prereq[105][400];
 int grade[105];
 int courseCnt;
+int preCondition[7][7];
+int canTake[105];
 
 int input[400000];
 int inputlen;
@@ -12,13 +14,15 @@ function int mod(int a, int b) {
 }
 
 function int getinput() {
-    int i;
+    int i, c;
     i = 0;
-    while(cinResult != -1) {
+    c = 1;
+    while(c != 0) {
         cin("%c", &input[i]);
+        c = input[i];
         i = i + 1;
     }
-    inputlen = i - 1;
+    inputlen = i - 2;
     return 0;
 }
 
@@ -74,6 +78,103 @@ function int printName(int n) {
         cout("%c", c[3]);
     }
     return 0;
+}
+
+function int getCondition(int i) {
+    int j, m, n;
+    int tmp;
+
+    m = 0;
+    n = 0;
+    while(m < 7) {
+        n = 0;
+        while(n < 7) {
+            preCondition[m][n] = 0;
+            n = n + 1;
+        }
+        m = m + 1;
+    }
+
+    j = 0;
+    m = 0;
+    n = 0;
+    tmp = 0;
+    while(prereq[i][j] != 0) {
+        if(prereq[i][j] != 44 && prereq[i][j] != 59) {
+            tmp = tmp * 256 + prereq[i][j];
+        }
+        else {
+            if(prereq[i][j] == 44) {
+                preCondition[m][n] = tmp;
+                tmp = 0;
+                n = n + 1;
+            }
+            else {
+                preCondition[m][n] = tmp;
+                tmp = 0;
+                n = 0;
+                m = m + 1;
+            }
+        }
+        j = j + 1;
+    }
+    preCondition[m][n] = tmp;
+
+/* test
+    m = 0;
+    n = 0;
+    while(m < 7) {
+        n = 0;
+        while(n < 7) {
+            printName(preCondition[m][n]);
+            cout(" ");
+            n = n + 1;
+        }
+        cout("\n");
+        m = m + 1;
+    }
+*/
+    return 0;
+}
+
+function int isPass(int n) {
+    int i, res;
+    i = 0;
+    res = 0;
+    while(i < courseCnt) {
+        if(name[i] == n && grade[i] != 0 && grade[i]!= -1) {
+            res = 1;
+        }
+        i = i + 1;
+    }
+    return res;
+}
+
+function int isTaken() {
+    int m, n, tmp;
+    int res;
+    res = 0;
+    if(preCondition[0][0] == 0) {
+        res = 1;
+    }
+    m = 0;
+    while(m < 7) {
+        if(preCondition[m][0] != 0) {
+            tmp = 1;
+            n = 0;
+            while(n < 7) {
+                if(isPass(preCondition[m][n]) == 0 && preCondition[m][n] != 0) {
+                    tmp = 0;
+                }
+                n = n + 1;
+            }
+            if(tmp == 1) {
+                res = 1;
+            }
+        }
+        m = m + 1;
+    }
+    return res;
 }
 
 function int main() {
@@ -144,7 +245,26 @@ function int main() {
     cout("GPA: %.1f\n", gpa);
     cout("Hours Attempted: %d\n", hAttempt);
     cout("Hours Completed: %d\n", hComplete);
-    cout("Credits Remaining: %d\n", cRemain);
+    cout("Credits Remaining: %d\n\n", cRemain);
+    cout("Possible Courses to Take Next\n");
+
+    i = 0;
+    while(i < courseCnt) {
+        if(grade[i] == 0 || grade[i] == -1) {
+            getCondition(i);
+            canTake[i] = isTaken();
+            if(canTake[i] == 1) {
+                cout("  ");
+                printName(name[i]);
+                cout("\n");
+            }
+        }
+        i = i + 1;
+    }
+
+    if(cRemain == 0) {
+        cout("  None - Congratulations!\n");
+    }
 
     return 0;
 }

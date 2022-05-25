@@ -553,10 +553,9 @@ BasicBlock *genStmt(baseAST *ast, IRBuilder<> funBuilder)
 
 #### 5.1.2 代码实现
 
-```c--
-/*quick sort*/
-int data[1000];
-function void qsort(int l,int r){
+```c--/*quick sort*/
+int data[10005];
+function int qsort(int l,int r){
     int ll;
     int rr;
     int pivot;
@@ -566,34 +565,35 @@ function void qsort(int l,int r){
     rr = r;
     pivot = data[l];
 
-    if(l>r){
-        return;
-    }
-    while(ll<rr){
-        while(data[ll]<pivot){
-            ll=ll+1;
-        }
-        while(data[rr]>pivoit){
-            rr=rr-1;
-        }
-        if(ll<=rr){
-            if(data[ll]>=data[rr]){
-                tmp=data[ll];
-                data[ll]=data[rr];
-                data[rr]=tmp;
+    if(l<r){
+        while(ll<rr){
+            while(data[ll]<pivot){
+                ll=ll+1;
             }
-            ll=ll+1;
-            rr=rr-1;
+            while(data[rr]>pivot){
+                rr=rr-1;
+            }
+            if(ll<=rr){
+                if(data[ll]>=data[rr]){
+                    tmp=data[ll];
+                    data[ll]=data[rr];
+                    data[rr]=tmp;
+                }
+                ll=ll+1;
+                rr=rr-1;
+            }
         }
+        qsort(l,rr);
+        qsort(ll,r);
     }
-    qsort(l,rr);
-    qsort(ll,r);
+
+    return 0;
 }
 function int main(){
     int i;
     int n;
     i = 1;
-    cin("%d",&n);
+    cin("%d", &n);
     while(i<=n){
         cin("%d",&data[i]);
         i=i+1;
@@ -655,8 +655,7 @@ $$
 计算完成后需要输出结果。结果分为 $M_C$ 行输出，每一行有 $N_C$ 个整数，每个整数前有数个空格，并满足整数的位数（负号算一位）加上空格的数量等于 $10$ 。
 #### 5.2.2 代码实现
 
-```c--
-int a[25][25];
+```c--int a[25][25];
 int b[25][25];
 int c[25][25];
 int ma;
@@ -761,352 +760,280 @@ function int main() {
 
 #### 5.3.2 代码实现
 
-```c--
-int name[105];
+```c--int name[105];
 int credit[105];
 int prereq[105][400];
 int grade[105];
-int courses_len;
-int nextCourses_len;
-int temp_bool;
+int courseCnt;
+int preCondition[7][7];
+int canTake[105];
 
-function void getline(int s[100]){
-    int i,c;
-    i = 0;
-    while(1){
-        cin("%c", &c);
-        /* 10: \n new line */
-        if(c == 10 || c == 0){
-            break;
-        }
-        s[i] = c;
-        i = i + 1;
-    }
-    s[i] = 0;
-    return;
+int input[400000];
+int inputlen;
+
+function int mod(int a, int b) {
+    return a - (b * (a / b));
 }
 
-function int parseGrade(int g){
-    int ret;
-    ret = -1;
-    if(g == 65){
-        ret = 4;
-    }
-    if(g == 66){
-        ret = 3;
-    }
-    if(g == 67){
-        ret = 2;
-    }
-    if(g == 68){
-        ret = 1;
-    }
-    if(g == 70){
-        ret =0;
-    }
-    return ret;
-}
-
-function int strCount(int s[400], int c){
-    int count, i;
+function int getinput() {
+    int i, c;
     i = 0;
-    count = 0;
-
-    while(s[i] != 0){
-        if(s[i] == c){
-            count = count + 1;
-        }
+    c = 1;
+    while(c != 0) {
+        cin("%c", &input[i]);
+        c = input[i];
         i = i + 1;
     }
-    return count;
+    inputlen = i - 2;
+    return 0;
 }
 
-function void summary(float gpa, int hAttempt, int hComplete, int cRemain, int courses[400]){
-    int i;
-    i = 0;
-
-    cout("GPA: %.1f\n", gpa);
-    cout("Hours Attempted: %d\n", hAttempt);
-    cout("Hours Completed: %d\n", hComplete);
-    cout("Credits Remaining: %d\n", cRemain);
-    cout("\nPossible Courses to Take Next\n");
-    while(i < nextCourses_len){
-        cout("  c%d\n", courses[i]);
-        i = i + 1;
+function int getGrade(int g) {
+    int res;
+    
+    if(g == 65) {
+        res = 4;
     }
-    if(nextCourses_len == 0){
-        if(cRemain == 0){
-            cout("  None - Congratulations!\n");
+    else {
+        if(g == 66) {
+            res = 3;
+        }
+        else {
+            if(g == 67) {
+                res = 2;
+            }
+            else {
+                if(g == 68) {
+                    res = 1;
+                }
+                else {
+                    if(g == 70) {
+                        res = 0;
+                    }
+                    else {
+                        res = -1;
+                    }
+                }
+            }
         }
     }
-    return;
+
+    return res;
 }
 
-function int strContains(int basicString[400], int s) {
-    int i;
-    i = 0;
-    while(basicString[i] != 0){
-        if(basicString[i] == s){
-            return 1;
-        }
-        i = i + 1;
+function int printName(int n) {
+    int c[4];
+    c[0] = mod(n / (256 * 256 * 256), 256);
+    c[1] = mod(n / (256 * 256), 256);
+    c[2] = mod(n / 256, 256);
+    c[3] = mod(n ,256);
+    if(c[0] != 0) {
+        cout("%c", c[0]);
+    }
+    if(c[1] != 0) {
+        cout("%c", c[1]);
+    }
+    if(c[2] != 0) {
+        cout("%c", c[2]);
+    }
+    if(c[3] != 0) {
+        cout("%c", c[3]);
     }
     return 0;
 }
 
-function int a2i(int p[400], int start){
-    int cyc, ret;
-    int i, t;
-    i = 0;
-    t = 0;
-    while(i < start){
-        t = t + 1;
-        start = start - 1;
-    }
-    cyc = p[t];
-    t = t + 1;
-    ret = 0;
+function int getCondition(int i) {
+    int j, m, n;
+    int tmp;
 
-    while(cyc >= 48 && cyc <= 57){
-        ret = 10 * ret + (cyc - 48);
-        cyc = p[t];
-        t = t + 1;
+    m = 0;
+    n = 0;
+    while(m < 7) {
+        n = 0;
+        while(n < 7) {
+            preCondition[m][n] = 0;
+            n = n + 1;
+        }
+        m = m + 1;
     }
 
-    return ret;
-}
-
-function int strlen(int s[400]){
-    int i;
-    i = 0;
-    while(s[i] != 0){
-        i = i + 1;
-    }
-    return i;
-}
-
-function void memset(int i[400], int target, int len){
-    int j;
     j = 0;
-    while( j < len){
-        i[j] = target;
+    m = 0;
+    n = 0;
+    tmp = 0;
+    while(prereq[i][j] != 0) {
+        if(prereq[i][j] != 44 && prereq[i][j] != 59) {
+            tmp = tmp * 256 + prereq[i][j];
+        }
+        else {
+            if(prereq[i][j] == 44) {
+                preCondition[m][n] = tmp;
+                tmp = 0;
+                n = n + 1;
+            }
+            else {
+                preCondition[m][n] = tmp;
+                tmp = 0;
+                n = 0;
+                m = m + 1;
+            }
+        }
         j = j + 1;
     }
-    return;
-}
+    preCondition[m][n] = tmp;
 
-function void strcpy(int dest[400], int src[400]){
-    int i;
-    i = 0;
-    while(src[i] != 0){
-        dest[i] = src[i];
-        i = i + 1;
+/* test
+    m = 0;
+    n = 0;
+    while(m < 7) {
+        n = 0;
+        while(n < 7) {
+            printName(preCondition[m][n]);
+            cout(" ");
+            n = n + 1;
+        }
+        cout("\n");
+        m = m + 1;
     }
-    dest[i] = 0;
-    return;
+*/
+    return 0;
 }
 
-function void substr(int s[400], int sub[400], int start, int len){
-    int i;
+function int isPass(int n) {
+    int i, res;
     i = 0;
-    while(i < len){
-        sub[i] = s[start + i];
-        i = i + 1;
-    }
-    sub[i] = 0;
-    return;
-}
-
-function int lineSplit(int input[400], int deli, int res[400][400]){
-    int len, i, cnt, deli_count, ii;
-    int delimiter_idx[100];
-    int tmp[400];
-
-    deli_count = strCount(input, deli);
-    ii = 1;
-    cnt = 0;
-
-    delimiter_idx[deli_count+1] = strlen(input);
-    i = 0;
-    while(i < strlen(input)){
-        if(input[i] == deli){
-            delimiter_idx[ii] = i;
-            ii = ii + 1;
+    res = 0;
+    while(i < courseCnt) {
+        if(name[i] == n && grade[i] != 0 && grade[i]!= -1) {
+            res = 1;
         }
         i = i + 1;
     }
-
-    i= 0;
-    while( i < deli_count+1){
-        if(i == 0){
-            substr(input, tmp, delimiter_idx[i], delimiter_idx[i+1]-delimiter_idx[i]);
-        }
-        else{
-            substr(input, tmp, delimiter_idx[i]+1, delimiter_idx[i+1]-delimiter_idx[i]-1);
-        }
-        strcpy(res[cnt], tmp);
-        cnt = cnt + 1;
-        i = i + 1;
-    }
-    return cnt;
-
+    return res;
 }
 
-function int main(){
+function int isTaken() {
+    int m, n, tmp;
+    int res;
+    res = 0;
+    if(preCondition[0][0] == 0) {
+        res = 1;
+    }
+    m = 0;
+    while(m < 7) {
+        if(preCondition[m][0] != 0) {
+            tmp = 1;
+            n = 0;
+            while(n < 7) {
+                if(isPass(preCondition[m][n]) == 0 && preCondition[m][n] != 0) {
+                    tmp = 0;
+                }
+                n = n + 1;
+            }
+            if(tmp == 1) {
+                res = 1;
+            }
+        }
+        m = m + 1;
+    }
+    return res;
+}
 
-    int course_cnt;
-    int line[400];
-    int t[105][400];
-    int line_slice, hAttempt, hComplete, cRemain;
-    float credit_score;
+function int main() {
+    int i, j;
+    int part;
+    int cRemain, hAttempt, creditScore, hComplete;
+    float gpa;
 
-    int nextCourse[105];
-    int canTake;
-    int found;
-    int i, ii;
+    getinput();
 
+    i = 0;
+    while(i < inputlen) {
+        while(input[i] != 124) {
+            name[courseCnt] = name[courseCnt] * 256 + input[i];
+            i = i + 1;
+        }
+        i = i + 1;
+        credit[courseCnt] = input[i] - 48;
+        i = i + 2;
+        j = 0;
+        while(input[i] != 124) {
+            prereq[courseCnt][j] = input[i];
+            i = i + 1;
+            j = j + 1;
+        }
+        i = i + 1;
+        if(input[i] == 10) {
+            grade[courseCnt] = -1;
+            i = i + 1;
+        }
+        else {
+            grade[courseCnt] = getGrade(input[i]);
+            i = i + 2;
+        }
+        courseCnt = courseCnt + 1;
+    }
 
-
-    int pres_id;
-    int l, k, this_course;
-
-
-
-    int valid_pre_strs[105][400];
-    int valid_pre_strs_len;
-    int pre_strs[105][400];
-    int pre_strs_len;
-
-
-    hAttempt = 0;
-    hComplete = 0;
     cRemain = 0;
-    credit_score = 0.0;
-    course_cnt = 0;
-    valid_pre_strs_len = 0;
-    pre_strs_len = 0;
-    nextCourses_len = 0;
+    hAttempt = 0;
+    creditScore = 0;
+    hComplete = 0;
 
-
-    while(cinResult != -1){
-        getline(line);
-        line_slice = lineSplit(line, 124, t);
-        if(line_slice == 1){
-            break;
-        }
-        name[course_cnt] = a2i(t[0], 1);
-        credit[course_cnt] = a2i(t[1], 0);
-        strcpy(prereq[course_cnt], t[2]);
-        grade[course_cnt] = parseGrade(t[3][0]);
-        course_cnt = course_cnt + 1;
-    }
     i = 0;
-    while( i < course_cnt){
-        if(grade[i] == -1){
+    while(i < courseCnt) {
+        if(grade[i] == -1) {
             cRemain = cRemain + credit[i];
         }
-        else{
-            if(grade[i] == 0){
+        else {
+            if(grade[i] == 0) {
                 hAttempt = hAttempt + credit[i];
                 cRemain = cRemain + credit[i];
-
             }
-            else{
-                credit_score = credit_score + grade[i] * credit[i];
+            else {
+                creditScore = creditScore + grade[i] * credit[i];
                 hAttempt = hAttempt + credit[i];
                 hComplete = hComplete + credit[i];
             }
         }
         i = i + 1;
     }
+    if(hAttempt == 0) {
+        gpa = 0.0;
+    }
+    else {
+        gpa = (creditScore * 1.0) / hAttempt;
+    }
+    
+    cout("GPA: %.1f\n", gpa);
+    cout("Hours Attempted: %d\n", hAttempt);
+    cout("Hours Completed: %d\n", hComplete);
+    cout("Credits Remaining: %d\n\n", cRemain);
+    cout("Possible Courses to Take Next\n");
+
     i = 0;
-    ii = 0;
-    /* 59: ; */
-    /* 44: , */
-
-    while(ii < course_cnt){
-        if(grade[ii] == -1 || grade[ii] == 0){
-            if(strlen(prereq[ii]) == 0){
-                nextCourse[nextCourses_len] = name[ii];
-                nextCourses_len = nextCourses_len + 1;
-                ii = ii + 1;
-                continue;
-            }
-            else{
-                canTake = 1;
-                if(strContains(prereq[ii], 59) == 1){
-                    valid_pre_strs_len = lineSplit(prereq[ii], 59, valid_pre_strs);
-                }
-                else{
-                    strcpy(valid_pre_strs[valid_pre_strs_len], prereq[ii]);
-                    valid_pre_strs_len = valid_pre_strs_len + 1;
-                }
-                pres_id = 0;
-                while(pres_id < valid_pre_strs_len){
-
-                    if(strContains(valid_pre_strs[pres_id], 44) == 1){
-                        pre_strs_len = lineSplit(valid_pre_strs[pres_id], 44, pre_strs);
-                    }
-                    else{
-                        strcpy(pre_strs[pre_strs_len], valid_pre_strs[pres_id]);
-                        pre_strs_len = pre_strs_len + 1;
-                    }
-
-                    canTake = 1;
-                    l = 0;
-                    while(l < pre_strs_len){
-                        this_course = a2i(pre_strs[l], 1);
-                        found = 0;
-                        k = 0;
-                        while( k < course_cnt){
-                            if(name[k] == this_course){
-                                found = 1;
-                                if(grade[k] == -1 || grade[k] == 0){
-                                    canTake = 0;
-                                    break;
-                                }
-                            }
-                            k = k + 1;
-                        }
-                        if (found == 0){
-                            canTake = 0;
-                            break;
-                        }
-                        if(canTake == 0){
-                            break;
-                        }
-                        l = l + 1;
-                    }
-
-                    if(canTake == 1){
-                        nextCourse[nextCourses_len] = name[ii];
-                        nextCourses_len = nextCourses_len + 1;
-                        break;
-                    }
-                    memset(pre_strs, 0, 42000);
-                    pre_strs_len = 0;
-                    pres_id = pres_id + 1;
-
-                }
-                memset(valid_pre_strs, 0, 42000);
-                valid_pre_strs_len = 0;
-
+    while(i < courseCnt) {
+        if(grade[i] == 0 || grade[i] == -1) {
+            getCondition(i);
+            canTake[i] = isTaken();
+            if(canTake[i] == 1) {
+                cout("  ");
+                printName(name[i]);
+                cout("\n");
             }
         }
-        ii = ii + 1;
+        i = i + 1;
     }
-    if(hAttempt==0){
-        summary( 0.0 , hAttempt, hComplete, cRemain, nextCourse);
 
+    if(cRemain == 0) {
+        cout("  None - Congratulations!\n");
     }
-    else{
-        summary(credit_score/hAttempt, hAttempt, hComplete, cRemain, nextCourse);
-    }
+
     return 0;
 }
 ```
 
 #### 5.3.3 测试结果 
+![image](resources/test3.jpg)
 
 ## 6 心得体会
 
