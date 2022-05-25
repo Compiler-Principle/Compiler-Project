@@ -342,61 +342,61 @@ Value *genExp(baseAST *ast, IRBuilder<> funBuilder) {
     else if(ast->name == "ADD") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFAdd(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFAdd(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateAdd(l, r);
     }
     else if(ast->name == "MINUS") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFSub(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFSub(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateSub(l, r);
     }
     else if(ast->name == "MULT") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFMul(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFMul(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateMul(l, r);
     }
     else if(ast->name == "DIV") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFDiv(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFDiv(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateSDiv(l, r);
     }
     else if(ast->name == "EQUAL") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOEQ(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOEQ(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateICmpEQ(l, r);
     }
     else if(ast->name == "LE") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOLE(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOLE(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateICmpSLE(l, r);
     }
     else if(ast->name == "GE") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOGE(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOGE(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateICmpSGE(l, r);
     }
     else if(ast->name == "NE") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpONE(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpONE(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateICmpNE(l, r);
     }
     else if(ast->name == "LESS") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOLT(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOLT(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateICmpSLT(l, r);
     }
     else if(ast->name == "GREATER") {
         auto * l = genExp(ast->children[0], funBuilder);
         auto * r = genExp(ast->children[1], funBuilder);
-        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOGT(l, r);
+        if(l->getType()->isDoubleTy() || r->getType()->isDoubleTy()) return funBuilder.CreateFCmpOGT(funBuilder.CreateSIToFP(l, getType("float")), funBuilder.CreateSIToFP(r, getType("float")));
         else return funBuilder.CreateICmpSGT(l, r);
     }
     return ConstantInt::get(Type::getInt32Ty(TheContext), 1909);
