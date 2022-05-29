@@ -11,20 +11,25 @@ RUN apt install locales && locale-gen zh_CN.UTF-8
 RUN \
   apt install -y curl wget git build-essential gcc g++ vim nano cmake python3.8 && \
   apt install -y flex bison && \
-  apt install -y clang-format clang-tidy clang-tools clang clangd && \
-  rm -rf /var/lib/apt/lists/* \
+  apt install -y clang-format clang-tidy clang-tools clang clangd
+#  rm -rf /var/lib/apt/lists/* \
 
 
 RUN \
-mkdir -p /llvm && cd /llvm && \
-wget https://github.com/llvm/llvm-project/archive/llvmorg-10.0.1.tar.gz  && \
-#    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-10.0.1.tar.gz
-tar -zxvf llvmorg-10.0.1.tar.gz && \
-cd llvm-project && \
-mkdir build && cd build && \
-cmake -DCMAKE_BUILD_TYPE=Release --enable-optimized --enable-targets=host-only -DLLVM_ENABLE_PROJECTS=clang -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/opt/llvm-10 ../llvm  && \
-make -j4 && \
-make install \
+    cd / && \
+    mkdir llvm && cd llvm
+RUN \
+    wget https://github.com/llvm/llvm-project/archive/llvmorg-10.0.1.tar.gz  && \
+    #    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-10.0.1.tar.gz
+    tar -zxvf llvmorg-10.0.1.tar.gz && \
+    cd llvm-project-llvmorg-10.0.1 && \
+    mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release --enable-optimized --enable-targets=host-only -DLLVM_ENABLE_PROJECTS=clang -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/opt/llvm-10 ../llvm  && \
+    make -j4 && \
+    make install
 
+RUN \
+    cd / && \
+    mkdir llvm && cd llvm
 
-RUN export PATH=/llvm/llvm-project/bin:$PATH
+RUN export PATH=/opt/llvm-10/bin:$PATH
