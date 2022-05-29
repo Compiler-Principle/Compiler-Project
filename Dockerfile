@@ -4,11 +4,16 @@ LABEL version="1.0.0"
 RUN  sed -i s@/archive.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list
 RUN  apt clean
 RUN  apt update
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LC_ALL=zh_CN.UTF-8
+RUN apt install locales && locale-gen zh_CN.UTF-8
+
 RUN \
   apt install -y curl wget git build-essential gcc g++ vim nano cmake python3.8 && \
   apt install -y flex bison && \
   apt install -y clang-format clang-tidy clang-tools clang clangd && \
   rm -rf /var/lib/apt/lists/* \
+
 
 RUN \
 mkdir -p /llvm && cd /llvm && \
