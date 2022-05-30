@@ -30,6 +30,9 @@ jobs:
       - name: Use bison
         run: sudo apt install bison
 
+      - name: Use llvm
+        run: sudo apt install llvm-10=1:10.0.0-4ubuntu1
+
       - name: Build
         run: |
           cd ${{ github.workspace }}
@@ -72,7 +75,8 @@ jobs:
           # 安装 Node 之后就可以执行构建脚本
         run: |
           cd AST/visu
-          npm install yarn -g
+          npm install -g gatsby-cli
+          npm install
           npm run build
 
       - name: Deploy
