@@ -31,6 +31,9 @@ RUN \
     cd / && \
     rm -rf /llvm
 
-RUN export PATH="/opt/llvm-10/bin:$PATH"
-RUN export LDFLAGS="-L/opt/llvm-10/lib"
-RUN export CPPFLAGS="-I/opt/llvm-10/include"
+#RUN export PATH="/opt/llvm-10/bin:$PATH"
+#RUN export LDFLAGS="-L/opt/llvm-10/lib"
+#RUN export CPPFLAGS="-I/opt/llvm-10/include"
+ENV PATH "$PATH:/opt/llvm-10/bin"
+ENV LDFLAGS "-L/opt/llvm-10/lib"
+ENV CPPFLAGS "-I/opt/llvm-10/include"
