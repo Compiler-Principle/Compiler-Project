@@ -76,7 +76,8 @@ const char *types[] = {"T_root",
                              "T_tydf",  //9
                              "T_expr",  //10
                              "T_formatstr",  //11
-                             "T_block", //12
+                             "T_block",  //12
+                             "T_struct", //13
 }; //
 const char *datatypes[]={
     "DT_nonedt",   //0
@@ -142,6 +143,9 @@ json_t genJson(baseAST *ast){
     case 12:
         sprintf(n, "%d CBLOCK", ast->id);
         break;
+    case 13:
+        sprintf(n, "%d STRUCT:%s", ast->id,ast->name.c_str());
+        break;        
     default:
         sprintf(n, "id:{%d} name:%s type:%s dataType:%s", ast->id, ast->name.c_str(),types[ast->type],datatypes[ast->dataType]);
         break;

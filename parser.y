@@ -52,7 +52,7 @@ Def_List : Def_List Var SEMI{$$=$1;$$->Insert($2);}
          ;
 
 Var : AST_Type Var_List{$$=new baseAST(AST_Type::T_defi,"Def");$$->Insert($1);$$->Insert($2);}
-    |STRUCT LC Def_List RC ID SEMI{$$=new baseAST(AST_Type::T_defi,"STRUCT");$$->Insert($5);$$->Insert($3);}
+    |STRUCT LC Def_List RC ID{$$=new baseAST(AST_Type::T_struct,$5);delete $5;$$->Insert($3);}
     ;
 
 Var_List : Var_List COMMA VarDec {$$=$1;$$->Insert($3);}

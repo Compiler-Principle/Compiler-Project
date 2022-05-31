@@ -27,6 +27,7 @@ typedef enum AST_Type
     T_expr, //10
     T_formatstr, //11
     T_block, //12
+    T_struct,//13
 } AST_Type;
 
 typedef enum AST_DataType
