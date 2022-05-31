@@ -1,6 +1,12 @@
 float a;
 int b;
 
+struct
+{
+    int a;
+    float b;
+}namea;
+
 function int main() {
     b = 1;
     a = b * 1.0;

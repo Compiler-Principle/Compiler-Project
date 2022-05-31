@@ -22,7 +22,7 @@
 %token<type_token> ADD MINUS MULT DIV
 %token<type_token> QUOT PERCENT LOGICAND LINEBREAK PERCENTD PERCENTF
 %token<type_token> SEMI COMMA DOT LP RP LB RB LC RC
-%token<type_token> IF ELSE WHILE TYPEINT TYPEFLOAT TYPEVOID RETURN BREAK CONTINUE FUNCTION INPUT OUTPUT
+%token<type_token> IF ELSE WHILE TYPEINT TYPEFLOAT TYPEVOID RETURN BREAK CONTINUE FUNCTION INPUT OUTPUT STRUCT
 
 %right ASSIGN
 %left NOT
@@ -52,6 +52,7 @@ Def_List : Def_List Var SEMI{$$=$1;$$->Insert($2);}
          ;
 
 Var : AST_Type Var_List{$$=new baseAST(AST_Type::T_defi,"Def");$$->Insert($1);$$->Insert($2);}
+    |STRUCT LC Def_List RC ID SEMI{$$=new baseAST(AST_Type::T_defi,"STRUCT");$$->Insert($5);$$->Insert($3);}
     ;
 
 Var_List : Var_List COMMA VarDec {$$=$1;$$->Insert($3);}

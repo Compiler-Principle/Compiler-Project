@@ -73,6 +73,7 @@ blank   [ \t\v\n\f\r]
 "function" {if (print_lex==1 ) printf("function\n"); return FUNCTION;}
 "cin" {if (print_lex==1 ) printf("cin\n"); return INPUT;}
 "cout" {if (print_lex==1 ) printf("cout\n"); return OUTPUT;}
+"struct" {{if (print_lex==1 ) printf("astruct\n"); return STRUCT;}}
 
 \"(\\.|[^"\\])*\" {if (print_lex==1 ) printf("format string:%s\n",yytext);     yylval.type_str=strdup(yytext);return FormatStr;}
 
