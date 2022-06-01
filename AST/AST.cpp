@@ -475,6 +475,11 @@ void baseAST::scanTree(Func *scope) {
                     info(InfoLevel::INFO, "Used global var " + t->name);
                     globalVars[t->name]->used = true;
                 }
+                else{
+                    if(t->name != "cinResult"){
+                        info(InfoLevel::ERROR, "Undefined variable " + t->name);
+                    }
+                }
             }
             break;
         default:

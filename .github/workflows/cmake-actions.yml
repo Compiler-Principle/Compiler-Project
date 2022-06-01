@@ -42,7 +42,7 @@ jobs:
           export LDFLAGS="-L/usr/lib/llvm-10/lib"
           export CPPFLAGS="-I/usr/include/llvm-10/llvm"
           make clean
-          make test
+          make parser
 
   build_and_deploy:
     # 在 Github 中显示的 job 名称
