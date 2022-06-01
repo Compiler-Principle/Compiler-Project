@@ -37,8 +37,8 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           ls -la
-          export PATH=/usr/lib/llvm-10/bin:${{ PATH }}
-          export LD_LIBRARY_PATH=/usr/lib/llvm-10/lib:${{ LD_LIBRARY_PATH }}
+          export PATH=/usr/lib/llvm-10/bin:$PATH
+          export LD_LIBRARY_PATH=/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH
           export LDFLAGS="-L/usr/lib/llvm-10/lib"
           export CPPFLAGS="-I/usr/include/llvm-10/llvm"
           make clean
