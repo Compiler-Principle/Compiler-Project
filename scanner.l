@@ -3,11 +3,7 @@
     #include <string.h>
     #include "AST/AST.h"
     #include "parser.tab.h"
-    int print_lex=1;
-    //#define DEBUG_PRINT
-    #ifndef DEBUG_PRINT
-    #define printf(...)  printf("")
-    #endif
+    int print_lex=0;
 %}
 %option yylineno
 %option noyywrap
