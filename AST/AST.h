@@ -73,7 +73,6 @@ public:
     AST_DataType type;
     bool used; // default false
     Var(std::string name, AST_DataType type) : name(std::move(name)), type(type), used(false) {}
-
     ~Var() {}
 
 };
@@ -84,9 +83,7 @@ public:
     std::string name;
     AST_DataType type;
     std::map<std::string, Var *> localVars; // local variables in the specific function
-
     Func(std::string name, AST_DataType rtype): name(std::move(name)), type(rtype) {}
-
     ~Func(){}
 };
 
