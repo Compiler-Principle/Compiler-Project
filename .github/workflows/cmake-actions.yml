@@ -80,6 +80,7 @@ jobs:
         run: |
           cd AST/visu
           npm install -g gatsby-cli
+          rm package-lock.json
           npm install
           npm run build
 
