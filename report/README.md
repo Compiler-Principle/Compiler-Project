@@ -339,6 +339,7 @@ typedef enum AST_Type
     T_expr,      // 表达式
     T_formatstr, // 规范输入输出
     T_block,     // 函数体
+  	T_struct,    //结构体
 } AST_Type;
 ```
 
@@ -626,7 +627,6 @@ function int main(){
 **输入：** 两个矩阵 $A$ 和 $B$ 。每个矩阵输入的第一行是单个空格隔开的两个整数 $M$ 和 $N$ ，满足 $1 \leqslant M, N \leqslant 25$ ，分别代表了矩阵的行数和列数。接下来 $M$ 行，每行是 $N$ 个整数，整数之间使用一个以上空格隔开，并满足整数的位数（负号算一位）加上空格的数量等于 $6$ 。 整数全部在区间 $(-1000, 1000)$ 中。不保证 $A$ 和 $B$ 之间可以进行乘法操作。
 
 **输出：** 如果 $A$ 和 $B$ 的维度不满足乘法的要求（即 $N_A \ne M_B$ ），则输出 `Incompatible Dimensions` ，该信息独占一行（输出后需要换行）；否则，需要计算：
-
 $$
 \begin{aligned}
 C & =
