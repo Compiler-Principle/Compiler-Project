@@ -60,12 +60,12 @@ const App: React.FC = () => {
   return (
       <>
       <div>123</div>
-    <React.Fragment>
+    <>
       <ReactECharts
         option={opt}
         style={{ height: '500px', width: '100%'}}
       />
-    </React.Fragment>
+    </>
       </>
   )
 };
