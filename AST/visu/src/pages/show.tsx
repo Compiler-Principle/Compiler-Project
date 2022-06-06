@@ -8,7 +8,8 @@ import ReactECharts from 'echarts-for-react';
 
 
 const Page: React.FC = () => {
-  const data = require('../tree.json');
+  const data = require('../components/tree.json');
+
   console.log(data);
 
 
