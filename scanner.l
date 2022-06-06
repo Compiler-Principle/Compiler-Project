@@ -2,6 +2,7 @@
     #include<stdio.h>
     #include <string.h>
     #include "AST/AST.h"
+    #include "info/info.h"
     #include "parser.tab.h"
     int print_lex=0;
 %}
@@ -92,13 +93,14 @@ blank   [ \t\v\n\f\r]
     return ID;
 }
 {digit}{id}* {
-    printf("Error ID:%s\n",yytext);
-    printf("At line:%d\n",yylineno);
-    yyterminate();
+    //printf("Error ID:%s\n",yytext);
+    //printf("At line:%d\n",yylineno);
+    //yyterminate();
 }
 . {
-    printf("Unknown Token:%s\n",yytext);
-    printf("At line:%d\n",yylineno);
+    char err[80];
+    sprintf(err, "Unknown Token: %s at line: %d ", yytext, yylineno);
+    info(InfoLevel::ERROR, err);
     yyterminate();
 }
 %%

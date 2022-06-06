@@ -2,6 +2,7 @@
     #include<stdio.h>
     #include "lex.yy.c"
     #include "AST/AST.h"
+    #include "info/info.h"
     void yyerror(const char*);
     extern baseAST *head;
     baseAST* temp;
@@ -156,8 +157,8 @@ Args : Args COMMA Exp{$$=$1;$$->Insert($3);}
 %%
 void yyerror(const char*s)
 {
-    printf("%s\n", s);
-    printf("line %d:", yylineno);
-    printf("text \"%s\" \n", yytext);
+    char err[80];
+    sprintf(err, "%s: \"%s\" at line: %d \n", s, yytext, yylineno);
+    info(InfoLevel::ERROR, err);
     exit(1);
 }
