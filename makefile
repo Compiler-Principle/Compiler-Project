@@ -1,6 +1,10 @@
 parser : main.cpp parser.tab.c lex.yy.c gen/gen.cpp
 	@g++ main.cpp parser.tab.c AST/AST.cpp info/info.cpp gen/gen.cpp -o parser `llvm-config --cflags --ldflags` `llvm-config --libs` `llvm-config --system-libs`
 
+front : main.cpp parser.tab.c lex.yy.c
+	@g++-11 main.cpp parser.tab.c AST/AST.cpp info/info.cpp -o parser
+	@./parser test.txt
+
 parser.tab.c : parser.y
 	@bison -d parser.y -v --debug
 

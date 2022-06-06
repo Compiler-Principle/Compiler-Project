@@ -186,7 +186,6 @@ int baseAST::staticID = 0;
 
 void baseAST::buildTable(Func *scope) {
     // Traverse among the tree to build the symbol table
-//     std::cout << "[Build] target type: " << types[this->type] << std::endl;
     switch (this->type) {
         case AST_Type::T_var:
             // Insert the variable into the functino symbol table
@@ -204,7 +203,7 @@ void baseAST::buildTable(Func *scope) {
                 // Local var
                 if(scope->localVars.find(this->name) != scope->localVars.end()) {
                     // Duplicate variable
-                    info(InfoLevel::ERROR, "Duplicate local variable: " + this->name);
+                    info(InfoLevel::ERROR, "Duplicate local variable: " + this->name + " in " + scope->name);
                 }else {
 //                    info(InfoLevel::INFO, "Create func var " + this->name);
                     scope->localVars[this->name] = new Var(this->name,this->dataType);
@@ -250,7 +249,6 @@ void baseAST::buildTable(Func *scope) {
         case AST_Type::T_defi:
             // Definition of a specific var
             // Var : AST_Type Var_List
-//            std::cout << "defi: " << std::endl;
             this->children.at(1)->dataType = this->children.at(0)->dataType;
             this->dataType = this->children.at(0)->dataType;
 
@@ -358,7 +356,6 @@ void baseAST::buildTable(Func *scope) {
 
 void baseAST::scanTree(Func *scope) {
     // Traverse among the tree to build the symbol table
-//    std::cout << "[scan] target type: " << types[this->type] << " scope: " << scope << std::endl;
     switch (this->type) {
         case AST_Type::T_var:
             if(scope){
@@ -368,10 +365,13 @@ void baseAST::scanTree(Func *scope) {
                     scope->localVars[this->name]->used = true;
                 }
             }
-            if(globalVars.find(this->name) != globalVars.end()){
+            else if(globalVars.find(this->name) != globalVars.end()){
                 // Duplicate variable
 //                info(InfoLevel::INFO, "Used global var " + this->name);
                 globalVars[this->name]->used = true;
+            }
+            else{
+                info(InfoLevel::ERROR, "Undefined variable " + this->name);
             }
             break;
         case AST_Type::T_func:
@@ -474,6 +474,11 @@ void baseAST::scanTree(Func *scope) {
                     // Duplicate variable
                     info(InfoLevel::INFO, "Used global var " + t->name);
                     globalVars[t->name]->used = true;
+                }
+                else{
+                    if(t->name != "cinResult"){
+//                        info(InfoLevel::ERROR, "Undefined variable " + t->name);
+                    }
                 }
             }
             break;

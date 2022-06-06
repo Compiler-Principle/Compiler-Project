@@ -37,8 +37,12 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           ls -la
+          export PATH=/usr/lib/llvm-10/bin:$PATH
+          export LD_LIBRARY_PATH=/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH
+          export LDFLAGS="-L/usr/lib/llvm-10/lib"
+          export CPPFLAGS="-I/usr/include/llvm-10/llvm"
           make clean
-          make test
+          make parser
 
   build_and_deploy:
     # 在 Github 中显示的 job 名称
@@ -76,6 +80,7 @@ jobs:
         run: |
           cd AST/visu
           npm install -g gatsby-cli
+          rm package-lock.json
           npm install
           npm run build
 
@@ -87,7 +92,7 @@ jobs:
           # Github 会在 workflow 中自动生成 GIHUBT_TOKEN，用于认证 workflow 的运行
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # 静态资源目录设置
-          publish_dir: ./build
+          publish_dir: ./AST/visu/public
           # 默认发布到 gh-pages 分支上，可以指定特定的发布分支（不能选拉取代码的分支）
           publish_branch: gh-pages
           full_commit_message: ${{ github.event.head_commit.message }}

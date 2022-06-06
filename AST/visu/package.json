@@ -4,6 +4,7 @@
   "description": "A simple starter to get up and developing quickly with Gatsby",
   "version": "0.1.0",
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
+  "homepage": "https://compiler-principle.github.io/Compiler-Project/",
   "dependencies": {
     "echarts": "^5.3.2",
     "echarts-for-react": "^3.0.2",
