@@ -365,14 +365,16 @@ void baseAST::scanTree(Func *scope) {
                     scope->localVars[this->name]->used = true;
                 }
             }
-            else if(globalVars.find(this->name) != globalVars.end()){
-                // Duplicate variable
+//            else {
+                if(globalVars.find(this->name) != globalVars.end()){
+                    // Duplicate variable
 //                info(InfoLevel::INFO, "Used global var " + this->name);
-                globalVars[this->name]->used = true;
-            }
-            else{
-                info(InfoLevel::ERROR, "Undefined variable " + this->name);
-            }
+                    globalVars[this->name]->used = true;
+                }
+                else{
+                    info(InfoLevel::ERROR, "Undefined variable " + this->name);
+                }
+//            }
             break;
         case AST_Type::T_func:
             // Insert the constant into the globalFuncs symbol table
@@ -477,7 +479,7 @@ void baseAST::scanTree(Func *scope) {
                 }
                 else{
                     if(t->name != "cinResult"){
-//                        info(InfoLevel::ERROR, "Undefined variable " + t->name);
+                        info(InfoLevel::ERROR, "Undefined variable " + t->name);
                     }
                 }
             }

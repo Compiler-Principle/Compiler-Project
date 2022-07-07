@@ -8,7 +8,7 @@ import ReactECharts from 'echarts-for-react';
 
 
 const App: React.FC = () => {
-  const data = require('../components/tree.json');
+  const data = require('../tree.json');
   console.log(data);
 
 
@@ -58,12 +58,15 @@ const App: React.FC = () => {
 
 
   return (
-    <React.Fragment>
+      <>
+      <div>123</div>
+    <>
       <ReactECharts
         option={opt}
         style={{ height: '500px', width: '100%'}}
       />
-    </React.Fragment>
+    </>
+      </>
   )
 };
 
