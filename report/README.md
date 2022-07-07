@@ -416,6 +416,17 @@ typedef enum AST_DataType
   };
   ```
 
+```c++
+class varNode : public baseAST{
+public:
+    std::string name; /* only for var */
+    varNode(const char *name, AST_DataType dataType);
+    ~varNode();
+};
+```
+
+
+
 #### 3.3.2 语法树构造
 
 我们在parser.y中构造语法树节点，并将节点插入到语法树中。

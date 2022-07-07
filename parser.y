@@ -13,6 +13,7 @@
     int type_token;
     baseAST *type_ast;
 }
+
 %token<type_int> INT
 %token<type_float> FLOAT
 %token<type_str> ID FormatStr

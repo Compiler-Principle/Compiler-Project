@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include "AST/AST.h"
-#include "gen/gen.h"
+// #include "gen/gen.h"
 baseAST *head;
 std::map<std::string, Var *> globalVars;
 std::map<std::string, Func *> globalFuncs;
@@ -21,8 +21,8 @@ int main(int argc,char** argv){
     head->scanTree(nullptr);
     checkVars();
 
-    InitIOFunc();
-    genCode(head);
-    genBC();
+    // InitIOFunc();
+    // genCode(head);
+    // genBC();
     return 0;
 }
